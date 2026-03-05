@@ -1,0 +1,14 @@
+<div class="row">
+{% for project in projects %}
+    <div class="col-md-4">
+        <div class="card shadow-sm mb-3 p-3">
+            <h5>{{ project.name }}</h5>
+            <p class="text-muted small">
+                {{ project.description }}
+            </p>
+        </div>
+    </div>
+{% empty %}
+    <p>No projects yet.</p>
+{% endfor %}
+</div>

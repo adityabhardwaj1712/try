@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+<div class="dashboard">
+
+    <div class="topbar">
+        <h2>TaskFlow Dashboard</h2>
+        <a href="/logout/">Logout</a>
+    </div>
+
+    <div class="content">
+        <h3>Welcome {{ request.user.username }}</h3>
+        <p>Your projects will appear here.</p>
+    </div>
+
+</div>
+
+</body>
+</html>

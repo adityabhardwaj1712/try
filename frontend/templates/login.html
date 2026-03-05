@@ -1,0 +1,25 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Login</title>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body class="centered">
+
+<div class="login-card">
+    <h2>TaskFlow Login</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        {{ form.username }}
+        {{ form.password }}
+
+        <button type="submit">Login</button>
+    </form>
+
+</div>
+
+</body>
+</html>
