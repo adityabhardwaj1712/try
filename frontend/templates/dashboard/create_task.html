@@ -1,13 +1,55 @@
 {% extends "dashboard/base.html" %}
 
 {% block content %}
-<h2 class="text-2xl font-semibold mb-6">Create Task</h2>
 
-<form method="post" class="bg-white p-6 rounded shadow">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button class="bg-green-600 text-white px-4 py-2 rounded mt-4">
-        Create
-    </button>
+<h2 class="text-2xl font-bold mb-6">
+Create Task
+</h2>
+
+<form method="POST" class="bg-white p-6 rounded shadow space-y-4">
+
+{% csrf_token %}
+
+<div>
+<label class="text-sm text-gray-600">Title</label>
+<input
+type="text"
+name="title"
+class="border rounded w-full p-2"
+/>
+</div>
+
+<div>
+<label class="text-sm text-gray-600">Description</label>
+<textarea
+name="description"
+class="border rounded w-full p-2"
+></textarea>
+</div>
+
+<div>
+<label class="text-sm text-gray-600">Priority</label>
+
+<select name="priority" class="border rounded w-full p-2">
+
+<option value="LOW">Low</option>
+<option value="MEDIUM">Medium</option>
+<option value="HIGH">High</option>
+
+</select>
+
+</div>
+
+<button
+type="submit"
+class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+
+>
+
+Create Task
+
+</button>
+
 </form>
+
 {% endblock %}

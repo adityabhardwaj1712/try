@@ -1,0 +1,32 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<h2 class="text-2xl font-bold mb-6">
+Activity Log
+</h2>
+
+<div class="bg-white p-6 rounded shadow">
+
+<ul>
+
+{% for log in logs %}
+
+<li class="border-b py-2 text-sm">
+
+<strong>{{ log.user }}</strong>
+{{ log.action }}
+
+<span class="text-gray-500">
+({{ log.project.name }})
+</span>
+
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+{% endblock %}

@@ -60,7 +60,7 @@ ROOT_URLCONF = "config.urls"
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'frontend/templates')],
+        'DIRS': [BASE_DIR / "frontend/templates"],      
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -148,11 +148,13 @@ CELERY_TASK_SERIALIZER = "json"
 # STATIC
 # ======================
 
-STATIC_URL = "static/"
+STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "frontend/static"),
 ]
+
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 

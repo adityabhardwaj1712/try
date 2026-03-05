@@ -1,0 +1,79 @@
+{% extends "dashboard/base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Task Board</h1>
+
+<div class="grid grid-cols-3 gap-6">
+
+<!-- TODO -->
+
+<div class="bg-gray-100 p-4 rounded">
+
+<h2 class="font-bold mb-4">To Do</h2>
+
+{% for task in todo_tasks %}
+
+<div class="bg-white p-3 rounded shadow mb-3">
+
+<strong>{{ task.title }}</strong>
+
+<p class="text-sm text-gray-500">
+{{ task.project.name }}
+</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- IN PROGRESS -->
+
+<div class="bg-yellow-100 p-4 rounded">
+
+<h2 class="font-bold mb-4">In Progress</h2>
+
+{% for task in progress_tasks %}
+
+<div class="bg-white p-3 rounded shadow mb-3">
+
+<strong>{{ task.title }}</strong>
+
+<p class="text-sm text-gray-500">
+{{ task.project.name }}
+</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+
+<!-- DONE -->
+
+<div class="bg-green-100 p-4 rounded">
+
+<h2 class="font-bold mb-4">Done</h2>
+
+{% for task in done_tasks %}
+
+<div class="bg-white p-3 rounded shadow mb-3">
+
+<strong>{{ task.title }}</strong>
+
+<p class="text-sm text-gray-500">
+{{ task.project.name }}
+</p>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+{% endblock %}

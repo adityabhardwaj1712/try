@@ -1,48 +1,82 @@
 body {
-    margin: 0;
-    font-family: Arial, sans-serif;
-    background: linear-gradient(135deg, #1e3c72, #2a5298);
+    margin:0;
+    font-family: Arial;
+    background:#f5f6fa;
 }
 
-.centered {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
+.layout{
+    display:flex;
 }
 
-.login-card {
-    background: white;
-    padding: 40px;
-    width: 350px;
-    border-radius: 12px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+/* SIDEBAR */
+
+.sidebar{
+    width:220px;
+    height:100vh;
+    background:#1e272e;
+    color:white;
+    padding:20px;
 }
 
-.login-card h2 {
-    text-align: center;
-    margin-bottom: 20px;
+.logo{
+    margin-bottom:30px;
 }
 
-.login-card input {
-    width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
+.sidebar ul{
+    list-style:none;
+    padding:0;
 }
 
-.login-card button {
-    width: 100%;
-    padding: 12px;
-    border: none;
-    background: #2a5298;
-    color: white;
-    font-weight: bold;
-    border-radius: 6px;
-    cursor: pointer;
+.sidebar li{
+    margin:15px 0;
 }
 
-.login-card button:hover {
-    background: #1e3c72;
+.sidebar a{
+    color:white;
+    text-decoration:none;
+}
+
+/* MAIN */
+
+.main{
+    flex:1;
+}
+
+/* TOPBAR */
+
+.topbar{
+    background:white;
+    padding:15px 30px;
+    display:flex;
+    justify-content:space-between;
+    border-bottom:1px solid #ddd;
+}
+
+.logout{
+    color:red;
+}
+
+/* CONTENT */
+
+.content{
+    padding:30px;
+}
+
+.cards{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:20px;
+}
+
+.card{
+    background:white;
+    padding:20px;
+    border-radius:8px;
+    box-shadow:0 2px 6px rgba(0,0,0,0.1);
+}
+
+.card a{
+    display:inline-block;
+    margin-top:10px;
+    color:#0984e3;
 }

@@ -1,10 +1,19 @@
-<div class="w-64 bg-gray-900 text-white p-6">
+<nav class="space-y-2">
 
-    <h1 class="text-2xl font-bold mb-8">TaskFlow</h1>
+<a href="/" class="block p-3 hover:bg-gray-700 rounded">
+Dashboard
+</a>
 
-    <ul class="space-y-4">
-        <li><a href="{% url 'dashboard' %}" class="block hover:text-gray-300">Dashboard</a></li>
-        <li><a href="{% url 'projects' %}" class="block hover:text-gray-300">Projects</a></li>
-    </ul>
+<a href="/projects/" class="block p-3 hover:bg-gray-700 rounded">
+Projects
+</a>
 
-</div>
+<a href="/tasks/" class="block p-3 hover:bg-gray-700 rounded">
+Tasks
+</a>
+
+<a href="/notifications/" class="block p-3 hover:bg-gray-700 rounded">
+Notifications
+</a>
+
+</nav>

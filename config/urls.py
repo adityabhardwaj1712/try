@@ -1,73 +1,56 @@
 from django.contrib import admin
 from django.urls import path, include
-from django.http import JsonResponse
-from django.contrib.auth import views as auth_views
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView,
-)
 
-
-def health_check(request):
-    return JsonResponse({"status": "ok"})
+from apps.projects.models import Project
+from apps.tasks.models import Task
+from apps.organizations.models import Membership
+from apps.activity.models import ActivityLog
 
 
 @login_required
 def dashboard_view(request):
-    return render(request, "dashboard.html")
+
+    projects_count = Project.objects.count()
+    tasks_count = Task.objects.count()
+    completed_tasks = Task.objects.filter(status="DONE").count()
+    members_count = Membership.objects.count()
+
+    activity_logs = ActivityLog.objects.all()[:10]
+
+    context = {
+        "projects_count": projects_count,
+        "tasks_count": tasks_count,
+        "completed_tasks": completed_tasks,
+        "members_count": members_count,
+        "activity_logs": activity_logs,
+    }
+
+    return render(request, "dashboard/dashboard.html", context)
 
 
 urlpatterns = [
 
-    # Health
-    path("health/", health_check, name="health"),
-
-    # Admin (optional)
     path("admin/", admin.site.urls),
 
-    # -----------------------------
-    # AUTH (Frontend Session Login)
-    # -----------------------------
-
-    path(
-        "login/",
-        auth_views.LoginView.as_view(
-            template_name="login.html",
-            redirect_authenticated_user=True,
-        ),
-        name="login",
-    ),
-
-    path(
-        "logout/",
-        auth_views.LogoutView.as_view(next_page="login"),
-        name="logout",
-    ),
-
-    # -----------------------------
-    # DASHBOARD (Main Frontend Page)
-    # -----------------------------
-
+    # dashboard
     path("", dashboard_view, name="dashboard"),
 
-    # -----------------------------
-    # JWT (API Authentication)
-    # -----------------------------
+    # auth + users
+    path("", include("apps.users.urls")),
 
-    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain"),
-    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+    # UI routes
+    path("projects/", include("apps.projects.urls")),
+    path("tasks/", include("apps.tasks.urls")),
+    path("comments/", include("apps.comments.urls")),
+    path("notifications/", include("apps.notifications.urls")),
+    path("organizations/", include("apps.organizations.urls")),
 
-    # -----------------------------
-    # API Routes
-    # -----------------------------
-
-    path("api/users/", include("apps.users.urls")),
-    path("api/organizations/", include("apps.organizations.urls")),
+    # API routes
     path("api/projects/", include("apps.projects.urls")),
     path("api/tasks/", include("apps.tasks.urls")),
     path("api/comments/", include("apps.comments.urls")),
-    path("api/activity/", include("apps.activity.urls")),
     path("api/notifications/", include("apps.notifications.urls")),
+    path("api/organizations/", include("apps.organizations.urls")),
 ]

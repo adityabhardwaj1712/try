@@ -1,33 +1,66 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
+
 from .models import Organization, Membership
-from .serializers import OrganizationSerializer, MembershipSerializer
 
 
-class OrganizationViewSet(viewsets.ModelViewSet):
-    serializer_class = OrganizationSerializer
-    permission_classes = [IsAuthenticated]
+@login_required
+def organization_list(request):
 
-    def get_queryset(self):
-        return Organization.objects.filter(
-            membership__user=self.request.user
-        ).distinct()
+    organizations = Organization.objects.filter(
+        memberships__user=request.user
+    ).distinct()
 
-    def perform_create(self, serializer):
-        org = serializer.save(owner=self.request.user)
+    return render(
+        request,
+        "dashboard/organization_list.html",
+        {"organizations": organizations}
+    )
+
+
+@login_required
+def create_organization(request):
+
+    if not request.user.can_manage():
+        return HttpResponseForbidden("Permission denied")
+
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+
+        org = Organization.objects.create(
+            name=name,
+            description=description,
+            owner=request.user
+        )
 
         Membership.objects.create(
-            user=self.request.user,
+            user=request.user,
             organization=org,
             role="ADMIN"
         )
 
+        return redirect("/organizations/")
 
-class MembershipViewSet(viewsets.ModelViewSet):
-    serializer_class = MembershipSerializer
-    permission_classes = [IsAuthenticated]
+    return render(request, "dashboard/create_organization.html")
 
-    def get_queryset(self):
-        return Membership.objects.filter(
-            organization=self.request.organization
-        )
+
+@login_required
+def organization_detail(request, pk):
+
+    organization = get_object_or_404(Organization, id=pk)
+
+    members = Membership.objects.filter(
+        organization=organization
+    ).select_related("user")
+
+    return render(
+        request,
+        "dashboard/organization_detail.html",
+        {
+            "organization": organization,
+            "members": members
+        }
+    )

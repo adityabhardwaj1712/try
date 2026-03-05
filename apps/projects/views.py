@@ -1,22 +1,56 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 from .models import Project
-from .serializers import ProjectSerializer
-from .filters import ProjectFilter
+from apps.organizations.models import Organization
+from apps.common.permissions import is_admin_or_manager, is_admin
 
 
-class ProjectViewSet(viewsets.ModelViewSet):
-    serializer_class = ProjectSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = ProjectFilter
+@login_required
+def project_list(request):
 
-    def get_queryset(self):
-        return Project.objects.filter(
-            organization=self.request.organization
+    projects = Project.objects.filter(
+        members=request.user
+    ).select_related("organization")
+
+    return render(
+        request,
+        "dashboard/project_list.html",
+        {"projects": projects}
+    )
+
+
+@login_required
+def create_project(request, org_id):
+
+    if not is_admin_or_manager(request.user):
+        return HttpResponseForbidden("Permission denied")
+
+    organization = get_object_or_404(Organization, id=org_id)
+
+    if request.method == "POST":
+
+        Project.objects.create(
+            name=request.POST.get("name"),
+            description=request.POST.get("description"),
+            organization=organization,
+            owner=request.user
         )
 
-    def perform_create(self, serializer):
-        serializer.save(organization=self.request.organization)
+        return redirect("/projects/")
+
+    return render(request, "dashboard/create_project.html")
+
+
+@login_required
+def delete_project(request, pk):
+
+    project = get_object_or_404(Project, id=pk)
+
+    if not is_admin(request.user):
+        return HttpResponseForbidden("Only admin can delete")
+
+    project.delete()
+
+    return redirect("/projects/")

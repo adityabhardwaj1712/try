@@ -1,60 +1,22 @@
-const token = localStorage.getItem("access");
+const socket = new WebSocket(
+'ws://' + window.location.host + '/ws/notifications/'
+);
 
-if (!token) {
-    window.location.href = "login.html";
-}
+socket.onmessage = function(e) {
 
-function logout() {
-    localStorage.removeItem("access");
-    window.location.href = "login.html";
-}
+const data = JSON.parse(e.data);
 
-function showCreateForm() {
-    document.getElementById("create-form").classList.toggle("hidden");
-}
+const notification = document.createElement("div");
 
-async function loadProjects() {
-    const response = await fetch("http://localhost:8000/api/projects/", {
-        headers: {
-            "Authorization": `Bearer ${token}`
-        }
-    });
+notification.className =
+"bg-green-500 text-white px-3 py-2 rounded fixed top-4 right-4";
 
-    const data = await response.json();
+notification.innerText = data.message;
 
-    const container = document.getElementById("project-list");
-    container.innerHTML = "";
+document.body.appendChild(notification);
 
-    data.forEach(project => {
-        container.innerHTML += `
-            <div class="card">
-                <h3>${project.name}</h3>
-                <p>${project.description}</p>
-            </div>
-        `;
-    });
-}
+setTimeout(() => {
+notification.remove();
+}, 4000);
 
-async function createProject() {
-    const name = document.getElementById("project-name").value;
-    const description = document.getElementById("project-desc").value;
-
-    const response = await fetch("http://localhost:8000/api/projects/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({
-            name,
-            description
-        })
-    });
-
-    if (response.ok) {
-        loadProjects();
-        document.getElementById("create-form").classList.add("hidden");
-    }
-}
-
-loadProjects();
+};

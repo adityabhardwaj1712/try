@@ -1,48 +1,49 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from django_filters.rest_framework import DjangoFilterBackend
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from django.http import HttpResponseForbidden
 
 from .models import Task
-from .serializers import TaskSerializer
-from .filters import TaskFilter
-from common.cache import cache_kanban, get_cached_kanban
+from projects.models import Project
 
 
-class TaskViewSet(viewsets.ModelViewSet):
-    serializer_class = TaskSerializer
-    permission_classes = [IsAuthenticated]
-    filter_backends = [DjangoFilterBackend]
-    filterset_class = TaskFilter
+@login_required
+def task_board(request):
 
-    def get_queryset(self):
-        return Task.objects.filter(
-            organization=self.request.organization
-        ).select_related("project", "assignee")
+    tasks = Task.objects.filter(
+        assignee=request.user
+    )
 
-    def perform_create(self, serializer):
-        serializer.save(organization=self.request.organization)
+    todo_tasks = tasks.filter(status="TODO")
+    progress_tasks = tasks.filter(status="IN_PROGRESS")
+    done_tasks = tasks.filter(status="DONE")
 
-    @action(detail=False, methods=["get"])
-    def kanban(self, request):
-        org = request.organization
+    context = {
+        "todo_tasks": todo_tasks,
+        "progress_tasks": progress_tasks,
+        "done_tasks": done_tasks,
+    }
 
-        if not org:
-            return Response({"error": "Organization header missing"}, status=400)
+    return render(request, "dashboard/task_board.html", context)
 
-        cached = get_cached_kanban(org.id)
-        if cached:
-            return Response(cached)
 
-        tasks = Task.objects.filter(organization=org)
+@login_required
+def create_task(request, project_id):
 
-        data = {
-            "TODO": TaskSerializer(tasks.filter(status="TODO"), many=True).data,
-            "IN_PROGRESS": TaskSerializer(tasks.filter(status="IN_PROGRESS"), many=True).data,
-            "DONE": TaskSerializer(tasks.filter(status="DONE"), many=True).data,
-        }
+    if not request.user.can_manage():
+        return HttpResponseForbidden("Permission denied")
 
-        cache_kanban(org.id, data)
+    project = Project.objects.get(id=project_id)
 
-        return Response(data)
+    if request.method == "POST":
+
+        Task.objects.create(
+            title=request.POST.get("title"),
+            description=request.POST.get("description"),
+            project=project,
+            organization=project.organization,
+            created_by=request.user
+        )
+
+        return redirect("/tasks/")
+
+    return render(request, "dashboard/create_task.html")

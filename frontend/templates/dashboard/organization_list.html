@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="text-2xl font-bold mb-6">Organizations</h1>
+
+<div class="space-y-4">
+
+{% for org in organizations %}
+
+<div class="bg-white p-4 shadow rounded">
+
+<strong>{{ org.name }}</strong>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

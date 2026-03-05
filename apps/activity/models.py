@@ -3,7 +3,7 @@ from django.conf import settings
 
 
 class ActivityLog(models.Model):
-
+    
     organization = models.ForeignKey(
         "organizations.Organization",
         on_delete=models.CASCADE,
@@ -20,6 +20,9 @@ class ActivityLog(models.Model):
 
     class Meta:
         ordering = ["-created_at"]
+        indexes = [
+            models.Index(fields=["organization"]),
+        ]
 
     def __str__(self):
         return self.action
