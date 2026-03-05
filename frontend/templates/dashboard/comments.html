@@ -1,0 +1,53 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Comments{% endblock %}
+
+{% block content %}
+
+<div class="card">
+
+<h2>Add Comment</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<select name="task">
+
+{% for task in tasks %}
+
+<option value="{{ task.id }}">{{ task.title }}</option>
+
+{% endfor %}
+
+</select>
+
+<textarea name="content"></textarea>
+
+<button>Add Comment</button>
+
+</form>
+
+</div>
+
+<div class="card">
+
+<h2>Comments</h2>
+
+{% for comment in comments %}
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<b>{{ comment.user.email }}</b>
+
+<p>{{ comment.content }}</p>
+
+<small>{{ comment.created_at }}</small>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

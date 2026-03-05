@@ -1,45 +1,43 @@
 {% extends "dashboard/base.html" %}
 
+{% block page_title %}Project{% endblock %}
+
 {% block content %}
 
 <h2 class="text-2xl font-bold mb-4">
 {{ project.name }}
 </h2>
 
-<p class="text-gray-500 mb-6">
-{{ project.description }}
-</p>
-
 <a
-href="/tasks/create/?project={{ project.id }}"
+href="/tasks/create/{{ project.id }}/"
 class="bg-blue-600 text-white px-4 py-2 rounded"
-
 >
-
-Create Task </a>
+Create Task
+</a>
 
 <hr class="my-6">
 
-<h3 class="font-semibold mb-3">
-Tasks
+{% for task in project.task_set.all %}
+
+<div class="bg-white p-4 rounded-lg shadow mb-4">
+
+<h3 class="font-semibold">
+{{ task.title }}
 </h3>
 
-<ul>
+<p class="text-gray-500 text-sm">
+Assigned to {{ task.assignee.email }}
+</p>
 
-{% for task in tasks %}
+<a
+href="/comments/?task={{ task.id }}"
+class="text-blue-500 text-sm"
+>
+View Comments
+</a>
 
-<li class="border-b py-2">
-
-{{ task.title }}
-
-<span class="text-sm text-gray-500">
-{{ task.status }}
-</span>
-
-</li>
+</div>
 
 {% endfor %}
-
-</ul>
 
 {% endblock %}

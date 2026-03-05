@@ -1,17 +1,22 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseForbidden
 
 from .models import Task
-from projects.models import Project
+from apps.projects.models import Project
+from apps.users.models import User
 
+
+# =============================
+# TASK BOARD
+# =============================
 
 @login_required
 def task_board(request):
 
     tasks = Task.objects.filter(
-        assignee=request.user
-    )
+        project__organization__memberships__user=request.user
+    ).select_related("project", "assignee")
 
     todo_tasks = tasks.filter(status="TODO")
     progress_tasks = tasks.filter(status="IN_PROGRESS")
@@ -23,27 +28,47 @@ def task_board(request):
         "done_tasks": done_tasks,
     }
 
-    return render(request, "dashboard/task_board.html", context)
+    return render(
+        request,
+        "dashboard/task_board.html",
+        context
+    )
 
+
+# =============================
+# CREATE TASK
+# =============================
 
 @login_required
-def create_task(request, project_id):
+def create_task(request):
 
-    if not request.user.can_manage():
+    if request.user.role not in ["ADMIN", "MANAGER"] and not request.user.is_superuser:
         return HttpResponseForbidden("Permission denied")
 
-    project = Project.objects.get(id=project_id)
+    projects = Project.objects.select_related("organization")
+    users = User.objects.all()
 
     if request.method == "POST":
+
+        project_id = request.POST.get("project")
+        project = get_object_or_404(Project, id=project_id)
 
         Task.objects.create(
             title=request.POST.get("title"),
             description=request.POST.get("description"),
             project=project,
             organization=project.organization,
+            assignee_id=request.POST.get("assignee"),
             created_by=request.user
         )
 
-        return redirect("/tasks/")
+        return redirect("task_board")
 
-    return render(request, "dashboard/create_task.html")
+    return render(
+        request,
+        "dashboard/create_task.html",
+        {
+            "projects": projects,
+            "users": users
+        }
+    )

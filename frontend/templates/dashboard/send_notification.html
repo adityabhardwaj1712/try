@@ -1,0 +1,53 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Send Notification{% endblock %}
+
+{% block content %}
+
+<div class="bg-white p-6 rounded-lg shadow max-w-lg">
+
+<h2 class="text-xl font-bold mb-4">
+Send Notification
+</h2>
+
+<form method="post">
+
+{% csrf_token %}
+
+<label class="block mb-2 font-medium">
+Select User
+</label>
+
+<select name="user" class="border rounded w-full p-2 mb-4">
+
+{% for user in users %}
+
+<option value="{{ user.id }}">
+{{ user.email }}
+</option>
+
+{% endfor %}
+
+</select>
+
+<label class="block mb-2 font-medium">
+Message
+</label>
+
+<input
+name="message"
+placeholder="Notification message"
+class="border rounded w-full p-2 mb-4"
+/>
+
+<button
+class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+>
+Send
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}

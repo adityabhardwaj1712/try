@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+from datetime import timedelta
 
 load_dotenv()
 
@@ -29,6 +30,7 @@ INSTALLED_APPS = [
     "django_filters",
     "django_redis",
     "channels",
+    "corsheaders",
 
     "apps.users",
     "apps.organizations",
@@ -37,7 +39,6 @@ INSTALLED_APPS = [
     "apps.comments",
     "apps.activity",
     "apps.notifications",
-    "corsheaders",
 ]
 
 # ======================
@@ -57,20 +58,24 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
+# ======================
+# TEMPLATES
+# ======================
+
 TEMPLATES = [
-    {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / "frontend/templates"],      
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-            ],
-        },
+{
+    "BACKEND": "django.template.backends.django.DjangoTemplates",
+    "DIRS": [BASE_DIR / "frontend/templates"],
+    "APP_DIRS": True,
+    "OPTIONS": {
+        "context_processors": [
+            "django.template.context_processors.debug",
+            "django.template.context_processors.request",
+            "django.contrib.auth.context_processors.auth",
+            "django.contrib.messages.context_processors.messages",
+        ],
     },
+},
 ]
 
 WSGI_APPLICATION = "config.wsgi.application"
@@ -81,14 +86,14 @@ ASGI_APPLICATION = "config.asgi.application"
 # ======================
 
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.postgresql",
-        "NAME": os.getenv("POSTGRES_DB"),
-        "USER": os.getenv("POSTGRES_USER"),
-        "PASSWORD": os.getenv("POSTGRES_PASSWORD"),
-        "HOST": os.getenv("POSTGRES_HOST"),
-        "PORT": os.getenv("POSTGRES_PORT"),
-    }
+"default": {
+"ENGINE": "django.db.backends.postgresql",
+"NAME": os.getenv("POSTGRES_DB"),
+"USER": os.getenv("POSTGRES_USER"),
+"PASSWORD": os.getenv("POSTGRES_PASSWORD"),
+"HOST": os.getenv("POSTGRES_HOST"),
+"PORT": os.getenv("POSTGRES_PORT"),
+}
 }
 
 AUTH_USER_MODEL = "users.User"
@@ -98,15 +103,27 @@ AUTH_USER_MODEL = "users.User"
 # ======================
 
 REST_FRAMEWORK = {
-    "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-    ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
-    "DEFAULT_FILTER_BACKENDS": [
-        "django_filters.rest_framework.DjangoFilterBackend",
-    ],
+"DEFAULT_AUTHENTICATION_CLASSES": [
+"rest_framework_simplejwt.authentication.JWTAuthentication",
+],
+"DEFAULT_PERMISSION_CLASSES": [
+"rest_framework.permissions.IsAuthenticated",
+],
+"DEFAULT_FILTER_BACKENDS": [
+"django_filters.rest_framework.DjangoFilterBackend",
+],
+}
+
+# ======================
+# JWT SETTINGS
+# ======================
+
+from datetime import timedelta
+
+SIMPLE_JWT = {
+"ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
+"REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+"AUTH_HEADER_TYPES": ("Bearer",),
 }
 
 # ======================
@@ -114,13 +131,13 @@ REST_FRAMEWORK = {
 # ======================
 
 CACHES = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": os.getenv("REDIS_URL"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
-    }
+"default": {
+"BACKEND": "django_redis.cache.RedisCache",
+"LOCATION": os.getenv("REDIS_URL"),
+"OPTIONS": {
+"CLIENT_CLASS": "django_redis.client.DefaultClient",
+},
+}
 }
 
 # ======================
@@ -128,30 +145,22 @@ CACHES = {
 # ======================
 
 CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels_redis.core.RedisChannelLayer",
-        "CONFIG": {
-            "hosts": [os.getenv("REDIS_URL")],
-        },
-    },
+"default": {
+"BACKEND": "channels_redis.core.RedisChannelLayer",
+"CONFIG": {
+"hosts": [os.getenv("REDIS_URL")],
+},
+},
 }
 
 # ======================
-# CELERY
-# ======================
-
-CELERY_BROKER_URL = os.getenv("REDIS_URL")
-CELERY_ACCEPT_CONTENT = ["json"]
-CELERY_TASK_SERIALIZER = "json"
-
-# ======================
-# STATIC
+# STATIC FILES
 # ======================
 
 STATIC_URL = "/static/"
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, "frontend/static"),
+os.path.join(BASE_DIR, "frontend/static"),
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")

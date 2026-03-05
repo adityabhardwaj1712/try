@@ -1,55 +1,53 @@
 {% extends "dashboard/base.html" %}
 
+{% block page_title %}Create Task{% endblock %}
+
 {% block content %}
 
-<h2 class="text-2xl font-bold mb-6">
-Create Task
-</h2>
+<div class="card">
 
-<form method="POST" class="bg-white p-6 rounded shadow space-y-4">
+<h2>Create Task</h2>
+
+<form method="POST">
 
 {% csrf_token %}
 
-<div>
-<label class="text-sm text-gray-600">Title</label>
-<input
-type="text"
-name="title"
-class="border rounded w-full p-2"
-/>
-</div>
+<label>Title</label>
+<input name="title" required>
 
-<div>
-<label class="text-sm text-gray-600">Description</label>
-<textarea
-name="description"
-class="border rounded w-full p-2"
-></textarea>
-</div>
+<label>Description</label>
+<textarea name="description"></textarea>
 
-<div>
-<label class="text-sm text-gray-600">Priority</label>
+<label>Project</label>
+<select name="project">
 
-<select name="priority" class="border rounded w-full p-2">
+{% for project in projects %}
 
-<option value="LOW">Low</option>
-<option value="MEDIUM">Medium</option>
-<option value="HIGH">High</option>
+<option value="{{ project.id }}">
+{{ project.name }} ({{ project.organization.name }})
+</option>
+
+{% endfor %}
 
 </select>
 
-</div>
+<label>Assign User</label>
+<select name="assignee">
 
-<button
-type="submit"
-class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+{% for user in users %}
 
->
+<option value="{{ user.id }}">
+{{ user.email }} ({{ user.role }})
+</option>
 
-Create Task
+{% endfor %}
 
-</button>
+</select>
+
+<button>Create Task</button>
 
 </form>
+
+</div>
 
 {% endblock %}

@@ -1,7 +1,6 @@
-from rest_framework.routers import DefaultRouter
-from .views import CommentViewSet
+from django.urls import path
+from .views import comments_page
 
-router = DefaultRouter()
-router.register("comments", CommentViewSet, basename="comments")
-
-urlpatterns = router.urls
+urlpatterns = [
+    path("", comments_page, name="comments_page"),
+]

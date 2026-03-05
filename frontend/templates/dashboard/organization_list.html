@@ -1,20 +1,48 @@
-{% extends "base.html" %}
+{% extends "dashboard/base.html" %}
+
+{% block title %}Organizations{% endblock %}
 
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Organizations</h1>
+<div class="card">
 
-<div class="space-y-4">
+<h2>Create Organization</h2>
 
-{% for org in organizations %}
+<form method="POST">
 
-<div class="bg-white p-4 shadow rounded">
+{% csrf_token %}
 
-<strong>{{ org.name }}</strong>
+<input name="name" placeholder="Organization name" required>
+
+<textarea name="description" placeholder="Description"></textarea>
+
+<button>Create</button>
+
+</form>
 
 </div>
 
+<div class="card">
+
+<h2>Organization List</h2>
+
+<table>
+
+<tr>
+<th>Name</th>
+<th>Description</th>
+</tr>
+
+{% for org in organizations %}
+
+<tr>
+<td>{{ org.name }}</td>
+<td>{{ org.description }}</td>
+</tr>
+
 {% endfor %}
+
+</table>
 
 </div>
 

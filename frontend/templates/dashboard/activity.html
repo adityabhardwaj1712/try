@@ -1,32 +1,60 @@
-{% extends "dashboard/base.html" %}
+{% extends "base.html" %}
 
 {% block content %}
 
-<h2 class="text-2xl font-bold mb-6">
-Activity Log
-</h2>
+<h1 class="text-2xl font-bold mb-6">
+Activity Logs
+</h1>
 
-<div class="bg-white p-6 rounded shadow">
+<div id="activityList" class="space-y-4">
 
-<ul>
-
-{% for log in logs %}
-
-<li class="border-b py-2 text-sm">
-
-<strong>{{ log.user }}</strong>
-{{ log.action }}
-
-<span class="text-gray-500">
-({{ log.project.name }})
-</span>
-
-</li>
-
-{% endfor %}
-
-</ul>
+<div class="text-gray-500">Loading activity...</div>
 
 </div>
+
+<script>
+
+async function loadActivity(){
+
+const res = await fetch("/api/activity/")
+const data = await res.json()
+
+const container = document.getElementById("activityList")
+
+container.innerHTML=""
+
+data.forEach(log => {
+
+container.innerHTML += `
+
+<div class="bg-white p-5 rounded-lg shadow hover:shadow-md transition">
+
+<div class="flex justify-between">
+
+<strong class="text-blue-600">
+${log.user}
+</strong>
+
+<span class="text-xs text-gray-400">
+${log.created_at}
+</span>
+
+</div>
+
+<p class="mt-2 text-gray-700">
+${log.action}
+</p>
+
+</div>
+
+`
+
+})
+
+}
+
+loadActivity()
+
+</script>
 
 {% endblock %}

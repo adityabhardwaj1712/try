@@ -1,37 +1,50 @@
-{% for project in projects %}
+{% extends "dashboard/base.html" %}
 
-<div class="bg-white rounded-lg shadow hover:shadow-lg transition p-5">
+{% block page_title %}Tasks{% endblock %}
 
-<h3 class="text-lg font-semibold text-gray-800">
-{{ project.name }}
-</h3>
+{% block content %}
 
-<p class="text-sm text-gray-500 mt-1">
-{{ project.description|default:"No description provided." }}
+<h1 class="text-2xl font-bold mb-6">
+Tasks
+</h1>
+
+<div id="taskList" class="space-y-4"></div>
+
+<script>
+
+async function loadTasks(){
+
+const res = await fetch("/api/tasks/")
+const data = await res.json()
+
+const container = document.getElementById("taskList")
+
+container.innerHTML=""
+
+data.forEach(t => {
+
+container.innerHTML += `
+
+<div class="bg-white p-5 rounded-lg shadow">
+
+<h2 class="font-semibold text-lg">
+${t.title}
+</h2>
+
+<p class="text-gray-500">
+Status: ${t.status}
 </p>
 
-<div class="mt-4 flex justify-between items-center">
-
-<a
-href="/projects/{{ project.id }}/"
-class="text-blue-600 text-sm font-medium hover:underline"
-
->
-
-View Project </a>
-
-<span class="text-xs text-gray-400">
-{{ project.created_at|date:"M d, Y" }}
-</span>
-
 </div>
 
-</div>
+`
 
-{% empty %}
+})
 
-<div class="text-gray-500">
-No projects available.
-</div>
+}
 
-{% endfor %}
+loadTasks()
+
+</script>
+
+{% endblock %}

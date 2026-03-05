@@ -1,38 +1,61 @@
 {% extends "dashboard/base.html" %}
 
+{% block title %}Projects{% endblock %}
+
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Projects</h1>
+<div class="card">
 
-<div id="projectList"></div>
+<h2>Create Project</h2>
 
-<script>
+<form method="POST" action="/projects/create/">
 
-async function loadProjects(){
+{% csrf_token %}
 
-const res = await fetch("/api/projects/")
+<input name="name" placeholder="Project name" required>
 
-const data = await res.json()
+<textarea name="description" placeholder="Description"></textarea>
 
-const container = document.getElementById("projectList")
+<select name="organization">
 
-container.innerHTML=""
+{% for org in organizations %}
 
-data.forEach(p => {
+<option value="{{ org.id }}">{{ org.name }}</option>
 
-container.innerHTML += `
-<div class="bg-white p-4 shadow rounded mb-4">
-<h2 class="text-xl font-bold">${p.name}</h2>
-<p>${p.description}</p>
+{% endfor %}
+
+</select>
+
+<button>Create Project</button>
+
+</form>
+
 </div>
-`
 
-})
+<div class="card">
 
-}
+<h2>Project List</h2>
 
-loadProjects()
+<table>
 
-</script>
+<tr>
+<th>Name</th>
+<th>Organization</th>
+<th>Owner</th>
+</tr>
+
+{% for project in projects %}
+
+<tr>
+<td>{{ project.name }}</td>
+<td>{{ project.organization.name }}</td>
+<td>{{ project.owner.email }}</td>
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
 
 {% endblock %}

@@ -3,6 +3,11 @@ from django.urls import path, include
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
+from rest_framework_simplejwt.views import (
+TokenObtainPairView,
+TokenRefreshView,
+)
+
 from apps.projects.models import Project
 from apps.tasks.models import Task
 from apps.organizations.models import Membership
@@ -17,7 +22,9 @@ def dashboard_view(request):
     completed_tasks = Task.objects.filter(status="DONE").count()
     members_count = Membership.objects.count()
 
-    activity_logs = ActivityLog.objects.all()[:10]
+    activity_logs = ActivityLog.objects.select_related(
+        "user", "organization"
+    ).order_by("-created_at")[:10]
 
     context = {
         "projects_count": projects_count,
@@ -27,30 +34,55 @@ def dashboard_view(request):
         "activity_logs": activity_logs,
     }
 
-    return render(request, "dashboard/dashboard.html", context)
+    return render(
+        request,
+        "dashboard/dashboard.html",
+        context
+    )
 
 
 urlpatterns = [
 
     path("admin/", admin.site.urls),
 
-    # dashboard
+    # -------------------------
+    # JWT AUTH API
+    # -------------------------
+
+    path("api/token/", TokenObtainPairView.as_view(), name="token_obtain_pair"),
+    path("api/token/refresh/", TokenRefreshView.as_view(), name="token_refresh"),
+
+    # -------------------------
+    # Dashboard
+    # -------------------------
+
     path("", dashboard_view, name="dashboard"),
 
-    # auth + users
+    # -------------------------
+    # Authentication
+    # -------------------------
+
     path("", include("apps.users.urls")),
 
-    # UI routes
+    # -------------------------
+    # UI Routes
+    # -------------------------
+
+    path("organizations/", include("apps.organizations.urls")),
     path("projects/", include("apps.projects.urls")),
     path("tasks/", include("apps.tasks.urls")),
     path("comments/", include("apps.comments.urls")),
     path("notifications/", include("apps.notifications.urls")),
-    path("organizations/", include("apps.organizations.urls")),
+    path("activity/", include("apps.activity.urls")),
 
-    # API routes
+    # -------------------------
+    # API Routes
+    # -------------------------
+
     path("api/projects/", include("apps.projects.urls")),
     path("api/tasks/", include("apps.tasks.urls")),
     path("api/comments/", include("apps.comments.urls")),
     path("api/notifications/", include("apps.notifications.urls")),
     path("api/organizations/", include("apps.organizations.urls")),
+    path("api/activity/", include("apps.activity.urls")),
 ]

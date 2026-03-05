@@ -1,25 +1,41 @@
 {% extends "dashboard/base.html" %}
 
+{% block page_title %}Task Board{% endblock %}
+
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Task Board</h1>
+<div class="flex justify-between mb-6">
+
+<h2 class="text-xl font-bold">Task Board</h2>
+
+<a href="/tasks/create/" class="bg-blue-600 text-white px-4 py-2 rounded">
++ Create Task
+</a>
+
+</div>
+
 
 <div class="grid grid-cols-3 gap-6">
 
 <!-- TODO -->
 
-<div class="bg-gray-100 p-4 rounded">
-
-<h2 class="font-bold mb-4">To Do</h2>
+<div>
+<h3 class="font-bold mb-3">Todo</h3>
 
 {% for task in todo_tasks %}
 
-<div class="bg-white p-3 rounded shadow mb-3">
+<div class="bg-white p-4 rounded shadow mb-3">
 
-<strong>{{ task.title }}</strong>
+<strong>{{task.title}}</strong>
 
-<p class="text-sm text-gray-500">
-{{ task.project.name }}
+<p class="text-sm text-gray-500">{{task.description}}</p>
+
+<p class="text-xs text-gray-400">
+Project: {{task.project.name}}
+</p>
+
+<p class="text-xs text-gray-400">
+Assigned: {{task.assignee.email}}
 </p>
 
 </div>
@@ -31,18 +47,23 @@
 
 <!-- IN PROGRESS -->
 
-<div class="bg-yellow-100 p-4 rounded">
-
-<h2 class="font-bold mb-4">In Progress</h2>
+<div>
+<h3 class="font-bold mb-3">In Progress</h3>
 
 {% for task in progress_tasks %}
 
-<div class="bg-white p-3 rounded shadow mb-3">
+<div class="bg-white p-4 rounded shadow mb-3">
 
-<strong>{{ task.title }}</strong>
+<strong>{{task.title}}</strong>
 
-<p class="text-sm text-gray-500">
-{{ task.project.name }}
+<p class="text-sm text-gray-500">{{task.description}}</p>
+
+<p class="text-xs text-gray-400">
+Project: {{task.project.name}}
+</p>
+
+<p class="text-xs text-gray-400">
+Assigned: {{task.assignee.email}}
 </p>
 
 </div>
@@ -54,18 +75,23 @@
 
 <!-- DONE -->
 
-<div class="bg-green-100 p-4 rounded">
-
-<h2 class="font-bold mb-4">Done</h2>
+<div>
+<h3 class="font-bold mb-3">Done</h3>
 
 {% for task in done_tasks %}
 
-<div class="bg-white p-3 rounded shadow mb-3">
+<div class="bg-white p-4 rounded shadow mb-3">
 
-<strong>{{ task.title }}</strong>
+<strong>{{task.title}}</strong>
 
-<p class="text-sm text-gray-500">
-{{ task.project.name }}
+<p class="text-sm text-gray-500">{{task.description}}</p>
+
+<p class="text-xs text-gray-400">
+Project: {{task.project.name}}
+</p>
+
+<p class="text-xs text-gray-400">
+Assigned: {{task.assignee.email}}
 </p>
 
 </div>

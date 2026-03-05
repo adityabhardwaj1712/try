@@ -1,50 +1,57 @@
 {% extends "dashboard/base.html" %}
 
+{% block title %}Users{% endblock %}
+
 {% block content %}
 
-<h1 class="text-2xl font-bold mb-6">Users</h1>
+<div class="card">
 
-<div class="bg-white p-6 shadow rounded mb-6">
-
-<h2 class="font-bold mb-4">Create User</h2>
+<h2>Create User</h2>
 
 <form method="POST">
+
 {% csrf_token %}
 
-{{ form.as_p }}
+<input name="email" placeholder="Email">
 
-<button class="bg-blue-600 text-white px-4 py-2 rounded">
-Create User
-</button>
+<input name="password" type="password" placeholder="Password">
+
+<select name="role">
+
+<option value="ADMIN">Admin</option>
+<option value="MANAGER">Manager</option>
+<option value="MEMBER">Member</option>
+
+</select>
+
+<button>Create User</button>
 
 </form>
 
 </div>
 
-<h2 class="text-xl font-bold mb-4">All Users</h2>
+<div class="card">
 
-<table class="w-full bg-white shadow rounded">
+<h2>User List</h2>
 
-<tr class="border-b">
+<table>
 
-<th class="p-3">Username</th>
+<tr>
 <th>Email</th>
 <th>Role</th>
-
 </tr>
 
 {% for user in users %}
 
-<tr class="border-b">
-
-<td class="p-3">{{ user.username }}</td>
+<tr>
 <td>{{ user.email }}</td>
 <td>{{ user.role }}</td>
-
 </tr>
 
 {% endfor %}
 
 </table>
+
+</div>
 
 {% endblock %}

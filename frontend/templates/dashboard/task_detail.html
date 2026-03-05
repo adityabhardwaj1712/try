@@ -1,35 +1,56 @@
 {% extends "dashboard/base.html" %}
 
+{% block page_title %}Task Details{% endblock %}
+
 {% block content %}
 
-<div class="bg-white p-6 rounded shadow">
-
-<h2 class="text-xl font-bold mb-4">
+<h2 class="text-2xl font-bold mb-4">
 {{ task.title }}
 </h2>
 
-<p class="text-gray-500 mb-6">
+<p class="text-gray-600 mb-6">
 {{ task.description }}
 </p>
 
-<div class="grid grid-cols-3 gap-6 text-sm">
+<h3 class="text-lg font-semibold mb-3">
+Comments
+</h3>
 
-<div>
-<strong>Status</strong>
-<p>{{ task.status }}</p>
+<form method="post" action="/comments/create/">
+
+{% csrf_token %}
+
+<input type="hidden" name="task" value="{{ task.id }}">
+
+<textarea
+name="content"
+class="border rounded w-full p-2 mb-3"
+placeholder="Write comment..."
+></textarea>
+
+<button
+class="bg-blue-600 text-white px-4 py-2 rounded"
+>
+Add Comment
+</button>
+
+</form>
+
+<div class="mt-6 space-y-3">
+
+{% for comment in task.comments.all %}
+
+<div class="bg-white p-4 rounded shadow">
+
+<strong>{{ comment.user.email }}</strong>
+
+<p class="text-gray-700 mt-2">
+{{ comment.content }}
+</p>
+
 </div>
 
-<div>
-<strong>Priority</strong>
-<p>{{ task.priority }}</p>
-</div>
-
-<div>
-<strong>Assignee</strong>
-<p>{{ task.assignee.username|default:"Unassigned" }}</p>
-</div>
-
-</div>
+{% endfor %}
 
 </div>
 

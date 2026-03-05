@@ -5,30 +5,66 @@ from django.http import HttpResponseForbidden
 from .models import Organization, Membership
 
 
+# ===============================
+# ORGANIZATION LIST
+# ===============================
+
+
 @login_required
 def organization_list(request):
 
-    organizations = Organization.objects.filter(
-        memberships__user=request.user
-    ).distinct()
+    # allow only admin or manager
+    if request.user.role not in ["ADMIN", "MANAGER"] and not request.user.is_superuser:
+        return HttpResponseForbidden("Permission denied")
+
+    # CREATE ORGANIZATION
+    if request.method == "POST":
+
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+
+        if name:
+
+            org = Organization.objects.create(
+                name=name,
+                description=description,
+                owner=request.user
+            )
+
+            # create membership
+            Membership.objects.create(
+                user=request.user,
+                organization=org,
+                role="ADMIN"
+            )
+
+            return redirect("/organizations/")
+
+    # SHOW ORGANIZATIONS
+    organizations = Organization.objects.all()
 
     return render(
         request,
         "dashboard/organization_list.html",
-        {"organizations": organizations}
+        {
+            "organizations": organizations
+        }
     )
 
-
+# ===============================
+# CREATE ORGANIZATION
+# ===============================
 @login_required
 def create_organization(request):
 
-    if not request.user.can_manage():
-        return HttpResponseForbidden("Permission denied")
+    print("CREATE ORG VIEW CALLED")
 
     if request.method == "POST":
 
         name = request.POST.get("name")
         description = request.POST.get("description")
+
+        print("DATA RECEIVED:", name, description)
 
         org = Organization.objects.create(
             name=name,
@@ -36,16 +72,22 @@ def create_organization(request):
             owner=request.user
         )
 
+        print("ORG CREATED:", org.id)
+
         Membership.objects.create(
             user=request.user,
             organization=org,
             role="ADMIN"
         )
 
-        return redirect("/organizations/")
+        return redirect("organization_list")
 
     return render(request, "dashboard/create_organization.html")
 
+
+# ===============================
+# ORGANIZATION DETAIL
+# ===============================
 
 @login_required
 def organization_detail(request, pk):

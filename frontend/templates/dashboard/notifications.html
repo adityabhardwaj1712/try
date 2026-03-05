@@ -1,0 +1,88 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+
+
+<div class="card">
+
+<h2>Create Notification</h2>
+
+<form method="POST">
+
+{% csrf_token %}
+
+<label>Message</label>
+
+<textarea name="message" placeholder="Enter notification message" required></textarea>
+
+
+<label>Send To User</label>
+
+<select name="user" style="max-height:150px; overflow-y:auto">
+
+{% for user in users %}
+
+<option value="{{ user.id }}">
+{{ user.email }} ({{ user.role }})
+</option>
+
+{% endfor %}
+
+</select>
+
+
+<label>Project</label>
+
+<select name="project" style="max-height:150px; overflow-y:auto">
+
+{% for project in projects %}
+
+<option value="{{ project.id }}">
+{{ project.name }} ({{ project.organization.name }})
+</option>
+
+{% endfor %}
+
+</select>
+
+
+<button type="submit">Send Notification</button>
+
+</form>
+
+</div>
+
+
+
+<div class="card">
+
+<h2>Notifications</h2>
+
+{% for n in notifications %}
+
+<div style="border-bottom:1px solid #eee;padding:10px">
+
+<strong>{{ n.message }}</strong>
+
+<br>
+
+{% if n.project %}
+<small>Project: {{ n.project.name }}</small>
+<br>
+{% endif %}
+
+<small>{{ n.created_at }}</small>
+
+</div>
+
+{% empty %}
+
+<p>No notifications</p>
+
+{% endfor %}
+
+</div>
+
+{% endblock %}

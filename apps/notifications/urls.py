@@ -1,7 +1,16 @@
+from django.urls import path
 from rest_framework.routers import DefaultRouter
-from .views import NotificationViewSet
+
+from .views import NotificationViewSet, notifications_page
+
 
 router = DefaultRouter()
-router.register("notifications", NotificationViewSet, basename="notifications")
+router.register("api/notifications", NotificationViewSet, basename="notifications")
 
-urlpatterns = router.urls
+urlpatterns = [
+
+    path("", notifications_page, name="notifications_page"),
+
+]
+
+urlpatterns += router.urls

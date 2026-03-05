@@ -1,24 +1,23 @@
 async function login() {
-    const username = document.getElementById("username").value;
-    const password = document.getElementById("password").value;
 
-    const response = await fetch("http://localhost:8000/api/token/", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-            username,
-            password
-        })
-    });
+const email = document.getElementById("username").value;
+const password = document.getElementById("password").value;
 
-    const data = await response.json();
+const response = await fetch("/login/", {
+method: "POST",
+headers: {
+"Content-Type": "application/json"
+},
+body: JSON.stringify({
+email: email,
+password: password
+})
+});
 
-    if (response.ok) {
-        localStorage.setItem("access", data.access);
-        window.location.href = "dashboard.html";
-    } else {
-        document.getElementById("error").innerText = "Invalid credentials";
-    }
+if (response.ok) {
+window.location.href = "/";
+} else {
+document.getElementById("error").innerText = "Invalid login";
+}
+
 }

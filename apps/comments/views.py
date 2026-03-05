@@ -1,20 +1,38 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from apps.tasks.models import Task
 from .models import Comment
-from .serializers import CommentSerializer
 
 
-class CommentViewSet(viewsets.ModelViewSet):
-    
-    serializer_class = CommentSerializer
-    permission_classes = [IsAuthenticated]
+@login_required
+def comments_page(request):
 
-    def get_queryset(self):
+    tasks = Task.objects.select_related("project")
 
-        return Comment.objects.filter(
-            task__organization=self.request.organization
-        ).select_related("user", "task")
+    if request.method == "POST":
 
-    def perform_create(self, serializer):
+        content = request.POST.get("content")
+        task_id = request.POST.get("task")
 
-        serializer.save(user=self.request.user)
+        if content and task_id:
+
+            Comment.objects.create(
+                content=content,
+                task_id=task_id,
+                user=request.user
+            )
+
+            return redirect("/comments/")
+
+    comments = Comment.objects.select_related(
+        "task", "user"
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "dashboard/comments.html",
+        {
+            "comments": comments,
+            "tasks": tasks
+        }
+    )

@@ -1,56 +1,89 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
-
-from .models import Project
 from apps.organizations.models import Organization
-from apps.common.permissions import is_admin_or_manager, is_admin
+from .models import Project
 
 
 @login_required
 def project_list(request):
 
-    projects = Project.objects.filter(
-        members=request.user
-    ).select_related("organization")
+    projects = Project.objects.select_related(
+        "organization",
+        "owner"
+    ).all()
+
+    organizations = Organization.objects.all()
 
     return render(
         request,
         "dashboard/project_list.html",
-        {"projects": projects}
+        {
+            "projects": projects,
+            "organizations": organizations
+        }
     )
 
 
 @login_required
-def create_project(request, org_id):
+def create_project(request):
 
-    if not is_admin_or_manager(request.user):
-        return HttpResponseForbidden("Permission denied")
-
-    organization = get_object_or_404(Organization, id=org_id)
+    organizations = Organization.objects.all()
 
     if request.method == "POST":
 
+        name = request.POST.get("name")
+        description = request.POST.get("description")
+        organization_id = request.POST.get("organization")
+
+        if not organization_id:
+
+            return render(
+                request,
+                "dashboard/create_project.html",
+                {
+                    "organizations": organizations,
+                    "error": "Please select an organization."
+                }
+            )
+
+        organization = get_object_or_404(
+            Organization,
+            id=organization_id
+        )
+
         Project.objects.create(
-            name=request.POST.get("name"),
-            description=request.POST.get("description"),
+            name=name,
+            description=description,
             organization=organization,
             owner=request.user
         )
 
-        return redirect("/projects/")
+        return redirect("project_list")
 
-    return render(request, "dashboard/create_project.html")
+    return render(
+        request,
+        "dashboard/create_project.html",
+        {
+            "organizations": organizations
+        }
+    )
 
 
 @login_required
-def delete_project(request, pk):
+def project_detail(request, pk):
 
-    project = get_object_or_404(Project, id=pk)
+    project = get_object_or_404(
+        Project.objects.select_related(
+            "organization",
+            "owner"
+        ),
+        id=pk
+    )
 
-    if not is_admin(request.user):
-        return HttpResponseForbidden("Only admin can delete")
-
-    project.delete()
-
-    return redirect("/projects/")
+    return render(
+        request,
+        "dashboard/project_detail.html",
+        {
+            "project": project
+        }
+    )

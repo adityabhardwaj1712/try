@@ -1,85 +1,39 @@
 {% extends "dashboard/base.html" %}
 
+{% block title %}Dashboard{% endblock %}
+
 {% block content %}
 
-<div class="grid grid-cols-4 gap-6">
+<div class="card">
 
-    <div class="bg-white shadow p-6 rounded">
-        <h2>Projects</h2>
-        <p id="projectCount" class="text-3xl font-bold">0</p>
-    </div>
+<h2>Organizations</h2>
 
-    <div class="bg-white shadow p-6 rounded">
-        <h2>Tasks</h2>
-        <p id="taskCount" class="text-3xl font-bold">0</p>
-    </div>
+<ul>
 
-</div>
+{% for org in organizations %}
 
+<li>{{ org.name }}</li>
 
-<div class="mt-10 bg-white shadow p-6 rounded">
+{% endfor %}
 
-    <h2 class="text-xl font-bold mb-4">
-        Recent Projects
-    </h2>
-
-    <div id="projectsList">
-        Loading...
-    </div>
+</ul>
 
 </div>
 
+<div class="card">
 
-<script>
+<h2>Projects</h2>
 
-async function loadProjects(){
+<ul>
 
-    try {
+{% for project in projects %}
 
-        const res = await fetch("/api/projects/")
+<li>{{ project.name }}</li>
 
-        if(!res.ok){
-            throw new Error("API failed")
-        }
+{% endfor %}
 
-        const data = await res.json()
+</ul>
 
-        const container = document.getElementById("projectsList")
-
-        document.getElementById("projectCount").innerText = data.length
-
-        container.innerHTML = ""
-
-        if(data.length === 0){
-            container.innerHTML = "<p>No projects yet</p>"
-            return
-        }
-
-        data.forEach(project => {
-
-            container.innerHTML += `
-                <div class="border-b py-3">
-                    <strong>${project.name}</strong>
-                    <p>${project.description ?? ""}</p>
-                </div>
-            `
-
-        })
-
-    }
-    catch(error){
-
-        console.error(error)
-
-        document.getElementById("projectsList").innerHTML =
-        "<p style='color:red'>Failed to load projects</p>"
-
-    }
-
-}
-
-loadProjects()
-
-</script>
+</div>
 
 {% endblock %}

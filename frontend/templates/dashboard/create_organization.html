@@ -1,0 +1,39 @@
+{% extends "dashboard/base.html" %}
+
+{% block page_title %}Create Organization{% endblock %}
+
+{% block content %}
+
+<div class="bg-white p-6 rounded-lg shadow max-w-lg">
+
+<h2 class="text-xl font-bold mb-4">
+Create Organization
+</h2>
+
+<form method="post">
+
+{% csrf_token %}
+
+<input
+name="name"
+placeholder="Organization Name"
+class="border rounded w-full p-2 mb-4"
+/>
+
+<textarea
+name="description"
+placeholder="Description"
+class="border rounded w-full p-2 mb-4"
+></textarea>
+
+<button
+class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+>
+Create Organization
+</button>
+
+</form>
+
+</div>
+
+{% endblock %}

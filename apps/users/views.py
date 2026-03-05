@@ -8,9 +8,6 @@ from .forms import CreateUserForm
 User = get_user_model()
 
 
-# --------------------
-# LOGIN VIEW
-# --------------------
 def login_view(request):
 
     if request.method == "POST":
@@ -22,18 +19,15 @@ def login_view(request):
 
         if user is not None:
             login(request, user)
-            return redirect("/")
+            return redirect("/organizations/")
 
-        return render(request, "login.html", {
+        return render(request, "dashboard/login.html", {
             "error": "Invalid credentials"
         })
 
     return render(request, "login.html")
 
 
-# --------------------
-# LOGOUT VIEW
-# --------------------
 def logout_view(request):
 
     logout(request)
@@ -41,9 +35,6 @@ def logout_view(request):
     return redirect("/login/")
 
 
-# --------------------
-# USERS PAGE
-# --------------------
 @login_required
 def users_page(request):
 
@@ -64,7 +55,11 @@ def users_page(request):
     else:
         form = CreateUserForm()
 
-    return render(request, "dashboard/users.html", {
-        "users": users,
-        "form": form
-    })
+    return render(
+        request,
+        "dashboard/users.html",
+        {
+            "users": users,
+            "form": form
+        }
+    )
