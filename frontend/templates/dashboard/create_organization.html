@@ -26,6 +26,25 @@ placeholder="Description"
 class="border rounded w-full p-2 mb-4"
 ></textarea>
 
+<label class="text-sm text-gray-600">
+Assign Manager
+</label>
+
+<select
+name="manager"
+class="border rounded w-full p-2 mb-4"
+>
+
+<option value="">Select Manager</option>
+
+{% for user in users %}
+<option value="{{ user.id }}">
+{{ user.email }}
+</option>
+{% endfor %}
+
+</select>
+
 <button
 class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
 >

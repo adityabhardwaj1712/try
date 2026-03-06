@@ -4,51 +4,63 @@
 
 {% block content %}
 
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-<div class="card">
+<!-- CREATE NOTIFICATION -->
 
-<h2>Create Notification</h2>
+<div class="bg-white p-6 rounded-lg shadow">
 
-<form method="POST">
+<h2 class="text-lg font-semibold mb-6 text-gray-700">
+Send Notification
+</h2>
+
+<form method="POST" class="space-y-4">
 
 {% csrf_token %}
 
-<label>Message</label>
+<textarea
+name="message"
+placeholder="Write notification message..."
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+required
+></textarea>
 
-<textarea name="message" placeholder="Enter notification message" required></textarea>
+<select
+name="user"
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+required
+>
 
-
-<label>Send To User</label>
-
-<select name="user" style="max-height:150px; overflow-y:auto">
+<option value="">Select User</option>
 
 {% for user in users %}
-
 <option value="{{ user.id }}">
 {{ user.email }} ({{ user.role }})
 </option>
-
 {% endfor %}
 
 </select>
 
+<select
+name="project"
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+>
 
-<label>Project</label>
-
-<select name="project" style="max-height:150px; overflow-y:auto">
+<option value="">Select Project (optional)</option>
 
 {% for project in projects %}
-
 <option value="{{ project.id }}">
-{{ project.name }} ({{ project.organization.name }})
+{{ project.name }} • {{ project.organization.name }}
 </option>
-
 {% endfor %}
 
 </select>
 
-
-<button type="submit">Send Notification</button>
+<button
+class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
+>
+Send Notification
+</button>
 
 </form>
 
@@ -56,32 +68,113 @@
 
 
 
-<div class="card">
+<!-- NOTIFICATIONS LIST -->
 
-<h2>Notifications</h2>
+<div class="bg-white p-6 rounded-lg shadow">
+
+<h2 class="text-lg font-semibold mb-6 text-gray-700">
+Notifications
+</h2>
+
+<div class="overflow-x-auto max-h-[500px] overflow-y-auto">
+
+<table class="w-full border border-gray-200 text-left">
+
+<thead class="bg-gray-100 text-gray-700">
+
+<tr>
+
+<th class="p-3 border">
+Message
+</th>
+
+<th class="p-3 border">
+Sender
+</th>
+
+<th class="p-3 border">
+User
+</th>
+
+<th class="p-3 border">
+Project
+</th>
+
+<th class="p-3 border">
+Organization
+</th>
+
+<th class="p-3 border">
+Date
+</th>
+
+</tr>
+
+</thead>
+
+<tbody>
 
 {% for n in notifications %}
 
-<div style="border-bottom:1px solid #eee;padding:10px">
+<tr class="hover:bg-gray-50 transition">
 
-<strong>{{ n.message }}</strong>
+<td class="p-3 border text-gray-800">
+{{ n.message }}
+</td>
 
-<br>
-
-{% if n.project %}
-<small>Project: {{ n.project.name }}</small>
-<br>
+<td class="p-3 border text-gray-600 text-sm">
+{% if n.sender %}
+{{ n.sender.email }}
+{% else %}
+—
 {% endif %}
+</td>
 
-<small>{{ n.created_at }}</small>
+<td class="p-3 border text-gray-600 text-sm">
+{{ n.user.email }}
+</td>
 
-</div>
+<td class="p-3 border text-gray-600 text-sm">
+{% if n.project %}
+{{ n.project.name }}
+{% else %}
+—
+{% endif %}
+</td>
+
+<td class="p-3 border text-gray-600 text-sm">
+{% if n.project %}
+{{ n.project.organization.name }}
+{% else %}
+—
+{% endif %}
+</td>
+
+<td class="p-3 border text-gray-400 text-xs">
+{{ n.created_at }}
+</td>
+
+</tr>
 
 {% empty %}
 
-<p>No notifications</p>
+<tr>
+
+<td colspan="6" class="text-center p-6 text-gray-400">
+No notifications yet
+</td>
+
+</tr>
 
 {% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 
 </div>
 

@@ -4,29 +4,63 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 
 from rest_framework_simplejwt.views import (
-TokenObtainPairView,
-TokenRefreshView,
+    TokenObtainPairView,
+    TokenRefreshView,
 )
 
+# Models
 from apps.projects.models import Project
 from apps.tasks.models import Task
-from apps.organizations.models import Membership
+from apps.organizations.models import Organization, Membership
+from apps.users.models import User
 from apps.activity.models import ActivityLog
 
+
+# ==========================
+# DASHBOARD VIEW
+# ==========================
 
 @login_required
 def dashboard_view(request):
 
-    projects_count = Project.objects.count()
-    tasks_count = Task.objects.count()
-    completed_tasks = Task.objects.filter(status="DONE").count()
-    members_count = Membership.objects.count()
+    # Organizations where the user is owner or member
+    organizations = (
+        Organization.objects.filter(owner=request.user) |
+        Organization.objects.filter(memberships__user=request.user)
+    ).distinct()
 
-    activity_logs = ActivityLog.objects.select_related(
+    # Projects in those organizations
+    projects = Project.objects.filter(
+        organization__in=organizations
+    )
+
+    # Tasks in those organizations
+    tasks = Task.objects.filter(
+        organization__in=organizations
+    )
+
+    # Users in those organizations
+    users = User.objects.filter(
+        memberships__organization__in=organizations
+    ).distinct()
+
+    # Stats
+    projects_count = projects.count()
+    tasks_count = tasks.count()
+    completed_tasks = tasks.filter(status="DONE").count()
+    members_count = users.count()
+
+    # Recent activity
+    activity_logs = ActivityLog.objects.filter(
+        organization__in=organizations
+    ).select_related(
         "user", "organization"
     ).order_by("-created_at")[:10]
 
     context = {
+        "organizations": organizations,
+        "projects": projects,
+        "users": users,
         "projects_count": projects_count,
         "tasks_count": tasks_count,
         "completed_tasks": completed_tasks,
@@ -41,8 +75,13 @@ def dashboard_view(request):
     )
 
 
+# ==========================
+# URL PATTERNS
+# ==========================
+
 urlpatterns = [
 
+    # Admin
     path("admin/", admin.site.urls),
 
     # -------------------------

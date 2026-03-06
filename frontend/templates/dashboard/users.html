@@ -4,53 +4,139 @@
 
 {% block content %}
 
-<div class="card">
+<div class="grid grid-cols-2 gap-6">
 
-<h2>Create User</h2>
+<!-- CREATE USER CARD -->
 
-<form method="POST">
+<div class="bg-white p-6 rounded shadow">
+
+<h2 class="text-xl font-bold mb-4">Create User</h2>
+
+<form method="POST" class="space-y-4">
 
 {% csrf_token %}
 
-<input name="email" placeholder="Email">
+<input
+name="email"
+placeholder="Email"
+class="w-full border rounded p-2"
+required
+>
 
-<input name="password" type="password" placeholder="Password">
+<input
+name="password"
+type="password"
+placeholder="Password"
+class="w-full border rounded p-2"
+required
+>
 
-<select name="role">
+<select
+name="role"
+class="w-full border rounded p-2"
+>
 
 <option value="ADMIN">Admin</option>
 <option value="MANAGER">Manager</option>
-<option value="MEMBER">Member</option>
+<option value="VIEWER">Viewer</option>
 
 </select>
 
-<button>Create User</button>
+<!-- ORGANIZATION DROPDOWN -->
+
+<select
+name="organization"
+class="w-full border rounded p-2 max-h-40 overflow-y-auto"
+required
+>
+
+<option value="">Select Organization</option>
+
+{% for org in form.organization.field.queryset %}
+
+<option value="{{ org.id }}">
+{{ org.name }}
+</option>
+
+{% empty %}
+
+<option disabled>No organizations available</option>
+
+{% endfor %}
+
+</select>
+
+<button
+class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded w-full"
+>
+Create User
+</button>
 
 </form>
 
 </div>
 
-<div class="card">
 
-<h2>User List</h2>
 
-<table>
+<!-- USER LIST CARD -->
+
+<div class="bg-white p-6 rounded shadow">
+
+<h2 class="text-xl font-bold mb-4">User List</h2>
+
+<table class="w-full border text-left">
+
+<thead class="bg-gray-100">
 
 <tr>
-<th>Email</th>
-<th>Role</th>
+<th class="p-2 border">Email</th>
+<th class="p-2 border">Role</th>
 </tr>
+
+</thead>
+
+<tbody>
 
 {% for user in users %}
 
+<tr class="hover:bg-gray-50">
+
+<td class="p-2 border">
+{{ user.email }}
+</td>
+
+<td class="p-2 border">
+
+{% if user.role == "ADMIN" %}
+<span class="text-red-600 font-semibold">ADMIN</span>
+
+{% elif user.role == "MANAGER" %}
+<span class="text-blue-600 font-semibold">MANAGER</span>
+
+{% else %}
+<span class="text-gray-600 font-semibold">VIEWER</span>
+
+{% endif %}
+
+</td>
+
+</tr>
+
+{% empty %}
+
 <tr>
-<td>{{ user.email }}</td>
-<td>{{ user.role }}</td>
+<td colspan="2" class="text-center p-4 text-gray-400">
+No users created
+</td>
 </tr>
 
 {% endfor %}
 
+</tbody>
+
 </table>
+
+</div>
 
 </div>
 

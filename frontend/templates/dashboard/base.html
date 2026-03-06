@@ -4,87 +4,217 @@
 
 <title>TaskFlow</title>
 
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
 <style>
 
-body{
+*{
 margin:0;
-font-family:Arial;
-background:#f4f6f9;
+padding:0;
+box-sizing:border-box;
 }
+
+body{
+font-family:'Inter',sans-serif;
+background:#f8fafc;
+color:#1e293b;
+display:flex;
+}
+
+/* SIDEBAR */
 
 .sidebar{
-width:220px;
+width:250px;
 height:100vh;
-background:#1e293b;
+background:#0f172a;
 color:white;
 position:fixed;
+display:flex;
+flex-direction:column;
 }
 
-.sidebar h2{
-padding:20px;
-border-bottom:1px solid rgba(255,255,255,0.1);
+/* LOGO */
+
+.logo{
+padding:22px 24px;
+font-size:20px;
+font-weight:600;
+border-bottom:1px solid rgba(255,255,255,0.08);
+letter-spacing:0.3px;
+}
+
+/* NAV */
+
+.sidebar nav{
+flex:1;
+padding-top:10px;
 }
 
 .sidebar a{
-display:block;
-padding:12px 20px;
-color:white;
+display:flex;
+align-items:center;
+gap:12px;
+padding:12px 24px;
 text-decoration:none;
+color:#cbd5f5;
+font-size:14px;
+transition:all 0.2s;
+border-left:3px solid transparent;
 }
 
 .sidebar a:hover{
-background:#334155;
+background:#1e293b;
+color:white;
 }
 
+/* USER AREA */
+
+.user-area{
+border-top:1px solid rgba(255,255,255,0.08);
+padding:18px 24px;
+font-size:13px;
+}
+
+.user-email{
+color:#94a3b8;
+margin-bottom:12px;
+}
+
+.logout{
+display:block;
+text-align:center;
+background:#ef4444;
+padding:8px;
+border-radius:6px;
+color:white;
+text-decoration:none;
+font-size:13px;
+transition:0.2s;
+}
+
+.logout:hover{
+background:#dc2626;
+}
+
+/* MAIN */
+
 .main{
-margin-left:220px;
+margin-left:250px;
+flex:1;
 padding:30px;
 }
 
+/* TOPBAR */
+
 .topbar{
 background:white;
-padding:15px 20px;
-border-radius:6px;
-margin-bottom:25px;
+border-radius:10px;
+padding:16px 20px;
 display:flex;
 justify-content:space-between;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+align-items:center;
+margin-bottom:25px;
+box-shadow:0 3px 10px rgba(0,0,0,0.05);
 }
+
+.topbar h3{
+font-size:18px;
+font-weight:600;
+}
+
+/* USER INFO */
+
+.user-info{
+display:flex;
+align-items:center;
+gap:12px;
+font-size:14px;
+}
+
+.avatar{
+width:36px;
+height:36px;
+border-radius:50%;
+background:#2563eb;
+display:flex;
+align-items:center;
+justify-content:center;
+color:white;
+font-weight:600;
+}
+
+/* CARD */
 
 .card{
 background:white;
-padding:20px;
-border-radius:8px;
+border-radius:10px;
+padding:22px;
 margin-bottom:20px;
-box-shadow:0 2px 6px rgba(0,0,0,0.1);
+box-shadow:0 4px 14px rgba(0,0,0,0.05);
 }
 
-input, select, textarea{
+/* FORM */
+
+input,select,textarea{
 width:100%;
 padding:10px;
-margin:8px 0;
-border:1px solid #ddd;
-border-radius:4px;
+margin-top:8px;
+margin-bottom:14px;
+border:1px solid #e2e8f0;
+border-radius:6px;
+font-size:14px;
 }
+
+input:focus,
+textarea:focus,
+select:focus{
+outline:none;
+border-color:#2563eb;
+}
+
+/* BUTTON */
 
 button{
 background:#2563eb;
 color:white;
-padding:10px 16px;
 border:none;
-border-radius:4px;
+padding:10px 18px;
+border-radius:6px;
 cursor:pointer;
+font-size:14px;
+transition:0.2s;
 }
+
+button:hover{
+background:#1d4ed8;
+}
+
+/* TABLE */
 
 table{
 width:100%;
 border-collapse:collapse;
+background:white;
+border-radius:10px;
+overflow:hidden;
+}
+
+table th{
+background:#f1f5f9;
+font-size:13px;
+text-transform:uppercase;
+letter-spacing:0.5px;
+color:#64748b;
 }
 
 table th, table td{
-padding:10px;
-border-bottom:1px solid #eee;
-text-align:left;
+padding:12px;
+border-bottom:1px solid #e2e8f0;
+font-size:14px;
+}
+
+table tr:hover{
+background:#f9fafb;
 }
 
 </style>
@@ -93,31 +223,40 @@ text-align:left;
 
 <body>
 
+<!-- SIDEBAR -->
+
 <div class="sidebar">
 
-<h2>TaskFlow</h2>
+<div class="logo">
+⚡ TaskFlow
+</div>
 
-<a href="/">Dashboard</a>
-<a href="/organizations/">Organizations</a>
-<a href="/projects/">Projects</a>
-<a href="/tasks/">Tasks</a>
-<a href="/comments/">Comments</a>
-<a href="/notifications/">Notifications</a>
-<a href="/users/">Users</a>
+<nav>
 
-<br>
+<a href="/">🏠 Dashboard</a>
+<a href="/organizations/">🏢 Organizations</a>
+<a href="/projects/">📁 Projects</a>
+<a href="/tasks/">🗂 Tasks</a>
+<a href="/comments/">💬 Comments</a>
+<a href="/notifications/">🔔 Notifications</a>
+<a href="/users/">👥 Users</a>
 
-<div style="padding:20px">
+</nav>
 
+<div class="user-area">
+
+<div class="user-email">
 {{ request.user.email }}
+</div>
 
-<br><br>
-
-<a href="/logout/">Logout</a>
+<a class="logout" href="/logout/">Logout</a>
 
 </div>
 
 </div>
+
+
+<!-- MAIN -->
 
 <div class="main">
 
@@ -125,14 +264,21 @@ text-align:left;
 
 <h3>{% block title %}{% endblock %}</h3>
 
+<div class="user-info">
+
+<div class="avatar">
+{{ request.user.email|slice:":1"|upper }}
+</div>
+
 <div>
-Logged in as <b>{{ request.user.email }}</b>
+{{ request.user.email }}
+</div>
+
 </div>
 
 </div>
 
 {% block content %}
-
 {% endblock %}
 
 </div>

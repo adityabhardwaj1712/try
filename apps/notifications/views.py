@@ -24,7 +24,11 @@ class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        return Notification.objects.filter(
+        return Notification.objects.select_related(
+            "sender",
+            "project",
+            "project__organization"
+        ).filter(
             user=self.request.user
         )
 
@@ -33,7 +37,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ["ADMIN", "MANAGER"]:
             raise PermissionDenied("You cannot send notifications")
 
-        serializer.save(user=self.request.user)
+        serializer.save(sender=self.request.user)
 
     @action(detail=True, methods=["post"])
     def mark_read(self, request, pk=None):
@@ -49,6 +53,7 @@ class NotificationViewSet(viewsets.ModelViewSet):
 # ==============================
 # DASHBOARD PAGE VIEW
 # ==============================
+
 @login_required
 def notifications_page(request):
 
@@ -59,15 +64,22 @@ def notifications_page(request):
 
         message = request.POST.get("message")
         user_id = request.POST.get("user")
+        project_id = request.POST.get("project")
 
         Notification.objects.create(
             message=message,
             user_id=user_id,
+            sender=request.user,
+            project_id=project_id
         )
 
         return redirect("notifications_page")
 
-    notifications = Notification.objects.filter(
+    notifications = Notification.objects.select_related(
+        "sender",
+        "project",
+        "project__organization"
+    ).filter(
         user=request.user
     ).order_by("-created_at")
 

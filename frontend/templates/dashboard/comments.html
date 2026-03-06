@@ -4,49 +4,127 @@
 
 {% block content %}
 
-<div class="card">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
 
-<h2>Add Comment</h2>
+<!-- ADD COMMENT -->
 
-<form method="POST">
+<div class="bg-white p-6 rounded-lg shadow">
 
-{% csrf_token %}
+    <h2 class="text-lg font-semibold mb-6 text-gray-700">
+        Add Comment
+    </h2>
 
-<select name="task">
+    <form method="POST" class="space-y-4">
 
-{% for task in tasks %}
+        {% csrf_token %}
 
-<option value="{{ task.id }}">{{ task.title }}</option>
+        <!-- TASK SELECT -->
 
-{% endfor %}
+        <select
+            name="task"
+            class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            required
+        >
 
-</select>
+            <option value="">Select Task</option>
 
-<textarea name="content"></textarea>
+            {% for task in tasks %}
+                <option value="{{ task.id }}">
+                    {{ task.title }} • {{ task.project.name }}
+                </option>
+            {% endfor %}
 
-<button>Add Comment</button>
+        </select>
 
-</form>
+        <!-- COMMENT TEXT -->
+
+        <textarea
+            name="content"
+            placeholder="Write your comment..."
+            class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+            rows="4"
+            required
+        ></textarea>
+
+        <!-- SUBMIT BUTTON -->
+
+        <button
+            type="submit"
+            class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
+        >
+            Add Comment
+        </button>
+
+    </form>
 
 </div>
 
-<div class="card">
 
-<h2>Comments</h2>
 
-{% for comment in comments %}
+<!-- COMMENTS LIST -->
 
-<div style="border-bottom:1px solid #eee;padding:10px">
+<div class="bg-white p-6 rounded-lg shadow">
 
-<b>{{ comment.user.email }}</b>
+    <h2 class="text-lg font-semibold mb-6 text-gray-700">
+        Comments
+    </h2>
 
-<p>{{ comment.content }}</p>
+    <div class="overflow-x-auto max-h-[500px] overflow-y-auto">
 
-<small>{{ comment.created_at }}</small>
+        <table class="w-full border border-gray-200 rounded-lg">
+
+            <thead class="bg-gray-100 text-gray-600 text-sm">
+
+                <tr>
+                    <th class="text-left p-3 border-b">User</th>
+                    <th class="text-left p-3 border-b">Task</th>
+                    <th class="text-left p-3 border-b">Comment</th>
+                    <th class="text-left p-3 border-b">Date</th>
+                </tr>
+
+            </thead>
+
+            <tbody class="text-sm text-gray-700">
+
+                {% for comment in comments %}
+
+                <tr class="hover:bg-gray-50">
+
+                    <td class="p-3 border-b">
+                        {{ comment.user.email }}
+                    </td>
+
+                    <td class="p-3 border-b">
+                        {{ comment.task.title }}
+                    </td>
+
+                    <td class="p-3 border-b">
+                        {{ comment.content }}
+                    </td>
+
+                    <td class="p-3 border-b text-gray-400">
+                        {{ comment.created_at }}
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="4" class="text-center p-6 text-gray-400">
+                        No comments yet
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
 
 </div>
-
-{% endfor %}
 
 </div>
 

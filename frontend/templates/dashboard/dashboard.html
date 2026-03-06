@@ -4,31 +4,120 @@
 
 {% block content %}
 
-<div class="card">
+<!-- STATS -->
+<div class="grid grid-cols-4 gap-6 mb-8">
 
-<h2>Organizations</h2>
+<div class="card p-4 bg-white shadow rounded">
+<h3 class="text-gray-500 text-sm">Projects</h3>
+<p class="text-2xl font-bold">{{ projects_count }}</p>
+</div>
 
-<ul>
+<div class="card p-4 bg-white shadow rounded">
+<h3 class="text-gray-500 text-sm">Tasks</h3>
+<p class="text-2xl font-bold">{{ tasks_count }}</p>
+</div>
+
+<div class="card p-4 bg-white shadow rounded">
+<h3 class="text-gray-500 text-sm">Completed</h3>
+<p class="text-2xl font-bold">{{ completed_tasks }}</p>
+</div>
+
+<div class="card p-4 bg-white shadow rounded">
+<h3 class="text-gray-500 text-sm">Members</h3>
+<p class="text-2xl font-bold">{{ members_count }}</p>
+</div>
+
+</div>
+
+
+<!-- MAIN DASHBOARD -->
+<div class="grid grid-cols-3 gap-6">
+
+<!-- ORGANIZATIONS -->
+<div class="card p-4 bg-white shadow rounded">
+
+<h2 class="font-bold mb-3">Organizations</h2>
+
+<ul class="space-y-2">
 
 {% for org in organizations %}
-
-<li>{{ org.name }}</li>
-
+<li class="text-gray-700">
+{{ org.name }}
+</li>
+{% empty %}
+<li class="text-gray-400">No organizations</li>
 {% endfor %}
 
 </ul>
 
 </div>
 
-<div class="card">
 
-<h2>Projects</h2>
+<!-- PROJECTS -->
+<div class="card p-4 bg-white shadow rounded">
 
-<ul>
+<h2 class="font-bold mb-3">Projects</h2>
+
+<ul class="space-y-2">
 
 {% for project in projects %}
+<li class="text-gray-700">
+{{ project.name }}
+<span class="text-xs text-gray-400">
+({{ project.organization.name }})
+</span>
+</li>
+{% empty %}
+<li class="text-gray-400">No projects</li>
+{% endfor %}
 
-<li>{{ project.name }}</li>
+</ul>
+
+</div>
+
+
+<!-- TEAM MEMBERS -->
+<div class="card p-4 bg-white shadow rounded">
+
+<h2 class="font-bold mb-3">Team Members</h2>
+
+<ul class="space-y-2">
+
+{% for user in users %}
+<li class="text-gray-700">
+{{ user.email }}
+</li>
+{% empty %}
+<li class="text-gray-400">No members</li>
+{% endfor %}
+
+</ul>
+
+</div>
+
+</div>
+
+
+<!-- ACTIVITY LOG -->
+<div class="card p-4 bg-white shadow rounded mt-8">
+
+<h2 class="font-bold mb-3">Recent Activity</h2>
+
+<ul class="space-y-2 text-sm">
+
+{% for log in activity_logs %}
+
+<li>
+<strong>{{ log.user.email }}</strong>
+{{ log.action }}
+<span class="text-gray-400 text-xs">
+({{ log.created_at }})
+</span>
+</li>
+
+{% empty %}
+
+<li class="text-gray-400">No activity yet</li>
 
 {% endfor %}
 

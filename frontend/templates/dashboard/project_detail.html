@@ -1,43 +1,141 @@
 {% extends "dashboard/base.html" %}
 
-{% block page_title %}Project{% endblock %}
+{% block title %}Projects{% endblock %}
 
 {% block content %}
 
-<h2 class="text-2xl font-bold mb-4">
-{{ project.name }}
+<div class="grid grid-cols-2 gap-8">
+
+<!-- CREATE PROJECT -->
+
+<div class="bg-white p-6 rounded-lg shadow">
+
+<h2 class="text-xl font-semibold mb-6 text-gray-700">
+Create Project
 </h2>
 
-<a
-href="/tasks/create/{{ project.id }}/"
-class="bg-blue-600 text-white px-4 py-2 rounded"
+<form method="POST" action="/projects/create/" class="space-y-4">
+
+{% csrf_token %}
+
+<input
+name="name"
+placeholder="Project name"
+class="w-full border border-gray-300 rounded-md p-3"
+required
 >
-Create Task
-</a>
 
-<hr class="my-6">
+<textarea
+name="description"
+placeholder="Description"
+class="w-full border border-gray-300 rounded-md p-3"
+></textarea>
 
-{% for task in project.task_set.all %}
+<label class="block text-sm font-semibold text-gray-600">
+Organization
+</label>
 
-<div class="bg-white p-4 rounded-lg shadow mb-4">
-
-<h3 class="font-semibold">
-{{ task.title }}
-</h3>
-
-<p class="text-gray-500 text-sm">
-Assigned to {{ task.assignee.email }}
-</p>
-
-<a
-href="/comments/?task={{ task.id }}"
-class="text-blue-500 text-sm"
+<select
+name="organization"
+class="w-full border border-gray-300 rounded-md p-3"
+required
 >
-View Comments
-</a>
+
+<option value="" disabled selected>
+Organization
+</option>
+
+{% for org in organizations %}
+
+<option value="{{ org.id }}">
+{{ org.name }}
+</option>
+
+{% empty %}
+
+<option disabled>No organizations available</option>
+
+{% endfor %}
+
+</select>
+
+<button
+class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md"
+>
+Create Project
+</button>
+
+</form>
 
 </div>
 
+
+
+<!-- PROJECT LIST -->
+
+<div class="bg-white p-6 rounded-lg shadow">
+
+<h2 class="text-xl font-semibold mb-6 text-gray-700">
+Projects
+</h2>
+
+<table class="w-full border text-left">
+
+<thead class="bg-gray-100">
+
+<tr>
+<th class="p-3 border">Project</th>
+<th class="p-3 border">Organization</th>
+<th class="p-3 border">Owner</th>
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for project in projects %}
+
+<tr
+class="hover:bg-gray-50 cursor-pointer"
+onclick="window.location='/projects/{{ project.id }}/'"
+>
+
+<td class="p-3 border font-semibold">
+{{ project.name }}
+</td>
+
+<td class="p-3 border">
+
+<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
+{{ project.organization.name }}
+</span>
+
+</td>
+
+<td class="p-3 border text-gray-600">
+{{ project.owner.email }}
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="3" class="text-center p-6 text-gray-400">
+No projects created
+</td>
+
+</tr>
+
 {% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
 
 {% endblock %}

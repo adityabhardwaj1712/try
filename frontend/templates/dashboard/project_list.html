@@ -4,57 +4,141 @@
 
 {% block content %}
 
-<div class="card">
+<div class="grid grid-cols-2 gap-8">
 
-<h2>Create Project</h2>
+<!-- CREATE PROJECT -->
 
-<form method="POST" action="/projects/create/">
+<div class="bg-white p-6 rounded-lg shadow">
+
+<h2 class="text-xl font-semibold mb-6 text-gray-700">
+Create Project
+</h2>
+
+<form method="POST" action="/projects/create/" class="space-y-4">
 
 {% csrf_token %}
 
-<input name="name" placeholder="Project name" required>
+<!-- PROJECT NAME -->
 
-<textarea name="description" placeholder="Description"></textarea>
+<input
+name="name"
+placeholder="Project name"
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+required
+>
 
-<select name="organization">
+
+<!-- DESCRIPTION -->
+
+<textarea
+name="description"
+placeholder="Description"
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+></textarea>
+
+
+<!-- ORGANIZATION DROPDOWN -->
+
+<select
+name="organization"
+class="w-full border border-gray-300 rounded-md p-3 focus:ring-2 focus:ring-blue-500 outline-none"
+required
+>
+
+<option value="" selected disabled>
+Organization
+</option>
 
 {% for org in organizations %}
 
-<option value="{{ org.id }}">{{ org.name }}</option>
+<option value="{{ org.id }}">
+{{ org.name }}
+</option>
+
+{% empty %}
+
+<option disabled>No organizations available</option>
 
 {% endfor %}
 
 </select>
 
-<button>Create Project</button>
+
+<!-- SUBMIT -->
+
+<button
+class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 rounded-md transition"
+>
+Create Project
+</button>
 
 </form>
 
 </div>
 
-<div class="card">
 
-<h2>Project List</h2>
 
-<table>
+<!-- PROJECT LIST -->
+
+<div class="bg-white p-6 rounded-lg shadow">
+
+<h2 class="text-xl font-semibold mb-6 text-gray-700">
+Project List
+</h2>
+
+<table class="w-full border text-left">
+
+<thead class="bg-gray-100">
 
 <tr>
-<th>Name</th>
-<th>Organization</th>
-<th>Owner</th>
+<th class="p-3 border">Name</th>
+<th class="p-3 border">Organization</th>
+<th class="p-3 border">Owner</th>
 </tr>
+
+</thead>
+
+<tbody>
 
 {% for project in projects %}
 
+<tr class="hover:bg-gray-50">
+
+<td class="p-3 border font-semibold text-gray-800">
+{{ project.name }}
+</td>
+
+<td class="p-3 border">
+
+<span class="bg-blue-100 text-blue-700 px-2 py-1 rounded text-sm">
+{{ project.organization.name }}
+</span>
+
+</td>
+
+<td class="p-3 border text-gray-600">
+{{ project.owner.email }}
+</td>
+
+</tr>
+
+{% empty %}
+
 <tr>
-<td>{{ project.name }}</td>
-<td>{{ project.organization.name }}</td>
-<td>{{ project.owner.email }}</td>
+
+<td colspan="3" class="text-center p-6 text-gray-400">
+No projects created yet
+</td>
+
 </tr>
 
 {% endfor %}
 
+</tbody>
+
 </table>
+
+</div>
 
 </div>
 

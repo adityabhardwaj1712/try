@@ -1,6 +1,5 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseForbidden
 
 from .models import Organization, Membership
 
@@ -9,16 +8,18 @@ from .models import Organization, Membership
 # ORGANIZATION LIST
 # ===============================
 
-
 @login_required
 def organization_list(request):
 
-    # allow only admin or manager
-    if request.user.role not in ["ADMIN", "MANAGER"] and not request.user.is_superuser:
-        return HttpResponseForbidden("Permission denied")
-
-    # CREATE ORGANIZATION
+    # CREATE ORGANIZATION FROM FORM
     if request.method == "POST":
+
+        # Only ADMIN or superuser can create
+        if request.user.role != "ADMIN" and not request.user.is_superuser:
+            return render(
+                request,
+                "dashboard/no_permission.html"
+            )
 
         name = request.POST.get("name")
         description = request.POST.get("description")
@@ -31,7 +32,7 @@ def organization_list(request):
                 owner=request.user
             )
 
-            # create membership
+            # creator becomes ADMIN
             Membership.objects.create(
                 user=request.user,
                 organization=org,
@@ -40,8 +41,9 @@ def organization_list(request):
 
             return redirect("/organizations/")
 
-    # SHOW ORGANIZATIONS
-    organizations = Organization.objects.all()
+    organizations = Organization.objects.filter(
+        memberships__user=request.user
+    ).distinct()
 
     return render(
         request,
@@ -51,28 +53,40 @@ def organization_list(request):
         }
     )
 
+
 # ===============================
-# CREATE ORGANIZATION
+# CREATE ORGANIZATION PAGE
 # ===============================
+
 @login_required
 def create_organization(request):
 
-    print("CREATE ORG VIEW CALLED")
-
     if request.method == "POST":
+
+        # Only ADMIN or superuser can create
+        if request.user.role != "ADMIN" and not request.user.is_superuser:
+            return render(
+                request,
+                "dashboard/no_permission.html"
+            )
 
         name = request.POST.get("name")
         description = request.POST.get("description")
 
-        print("DATA RECEIVED:", name, description)
+        if not name:
+            return render(
+                request,
+                "dashboard/create_organization.html",
+                {
+                    "error": "Organization name is required"
+                }
+            )
 
         org = Organization.objects.create(
             name=name,
             description=description,
             owner=request.user
         )
-
-        print("ORG CREATED:", org.id)
 
         Membership.objects.create(
             user=request.user,
@@ -82,7 +96,10 @@ def create_organization(request):
 
         return redirect("organization_list")
 
-    return render(request, "dashboard/create_organization.html")
+    return render(
+        request,
+        "dashboard/create_organization.html"
+    )
 
 
 # ===============================
@@ -92,7 +109,22 @@ def create_organization(request):
 @login_required
 def organization_detail(request, pk):
 
-    organization = get_object_or_404(Organization, id=pk)
+    organization = get_object_or_404(
+        Organization,
+        id=pk
+    )
+
+    membership = Membership.objects.filter(
+        user=request.user,
+        organization=organization
+    ).first()
+
+    # User must belong to organization
+    if not membership:
+        return render(
+            request,
+            "dashboard/no_permission.html"
+        )
 
     members = Membership.objects.filter(
         organization=organization

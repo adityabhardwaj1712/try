@@ -4,57 +4,121 @@
 
 {% block content %}
 
-<div class="card">
+<div class="grid grid-cols-2 gap-6">
 
-<h2>Create Task</h2>
+<!-- CREATE TASK -->
+<div class="bg-white p-6 rounded shadow">
 
-<form method="POST">
+<h2 class="text-xl font-bold mb-4">Create Task</h2>
+
+<form method="POST" class="space-y-4">
 
 {% csrf_token %}
 
-<input name="title" placeholder="Task title">
+<input
+name="title"
+placeholder="Task title"
+class="w-full border rounded p-2"
+/>
 
-<textarea name="description" placeholder="Description"></textarea>
+<textarea
+name="description"
+placeholder="Description"
+class="w-full border rounded p-2"
+></textarea>
 
-<select name="assignee">
-
+<select
+name="assignee"
+class="w-full border rounded p-2"
+>
 {% for user in users %}
-
-<option value="{{ user.id }}">{{ user.email }}</option>
-
+<option value="{{ user.id }}">
+{{ user.email }}
+</option>
 {% endfor %}
-
 </select>
 
-<button>Create Task</button>
+<button
+class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
+>
+Create Task
+</button>
 
 </form>
 
 </div>
 
-<div class="card">
 
-<h2>Task List</h2>
+<!-- TASK TABLE -->
+<div class="bg-white p-6 rounded shadow">
 
-<table>
+<h2 class="text-xl font-bold mb-4">Task List</h2>
 
+<div class="overflow-x-auto">
+
+<table class="w-full border text-left">
+
+<thead class="bg-gray-100">
 <tr>
-<th>Title</th>
-<th>Status</th>
-<th>Assigned</th>
+<th class="p-2 border">Title</th>
+<th class="p-2 border">Status</th>
+<th class="p-2 border">Assigned</th>
 </tr>
+</thead>
+
+<tbody>
 
 {% for task in tasks %}
 
+<tr class="hover:bg-gray-50">
+
+<td class="p-2 border font-medium">
+{{ task.title }}
+</td>
+
+<td class="p-2 border">
+
+<form method="POST" action="/tasks/update-status/{{ task.id }}/">
+
+{% csrf_token %}
+
+<select name="status"
+onchange="this.form.submit()"
+class="border rounded p-1">
+
+<option value="TODO" {% if task.status == "TODO" %}selected{% endif %}>TODO</option>
+<option value="IN_PROGRESS" {% if task.status == "IN_PROGRESS" %}selected{% endif %}>IN PROGRESS</option>
+<option value="DONE" {% if task.status == "DONE" %}selected{% endif %}>DONE</option>
+
+</select>
+
+</form>
+
+</td>
+
+<td class="p-2 border text-sm text-gray-600">
+{{ task.assignee.email }}
+</td>
+
+</tr>
+
+{% empty %}
+
 <tr>
-<td>{{ task.title }}</td>
-<td>{{ task.status }}</td>
-<td>{{ task.assignee.email }}</td>
+<td colspan="3" class="text-center p-4 text-gray-400">
+No tasks created
+</td>
 </tr>
 
 {% endfor %}
 
+</tbody>
+
 </table>
+
+</div>
+
+</div>
 
 </div>
 
