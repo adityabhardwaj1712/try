@@ -84,29 +84,15 @@ Notifications
 
 <tr>
 
-<th class="p-3 border">
-Message
-</th>
+<th class="p-3 border">Message</th>
+<th class="p-3 border">Sender</th>
+<th class="p-3 border">User</th>
+<th class="p-3 border">Project</th>
+<th class="p-3 border">Organization</th>
+<th class="p-3 border">Date</th>
 
-<th class="p-3 border">
-Sender
-</th>
-
-<th class="p-3 border">
-User
-</th>
-
-<th class="p-3 border">
-Project
-</th>
-
-<th class="p-3 border">
-Organization
-</th>
-
-<th class="p-3 border">
-Date
-</th>
+<!-- NEW COLUMN -->
+<th class="p-3 border">Status</th>
 
 </tr>
 
@@ -154,13 +140,33 @@ Date
 {{ n.created_at }}
 </td>
 
+<!-- READ STATUS -->
+
+<td class="p-3 border text-sm">
+
+{% if n.is_read %}
+
+<span class="text-green-600 font-medium">
+Read
+</span>
+
+{% else %}
+
+<span class="text-yellow-600 font-medium">
+Unread
+</span>
+
+{% endif %}
+
+</td>
+
 </tr>
 
 {% empty %}
 
 <tr>
 
-<td colspan="6" class="text-center p-6 text-gray-400">
+<td colspan="7" class="text-center p-6 text-gray-400">
 No notifications yet
 </td>
 

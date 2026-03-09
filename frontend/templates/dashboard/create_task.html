@@ -8,18 +8,21 @@
 
 <h2>Create Task</h2>
 
-<form method="POST">
+<form method="POST" action="{% url 'create_task' %}">
 
 {% csrf_token %}
 
 <label>Title</label>
-<input name="title" required>
+<input type="text" name="title" placeholder="Task title" required>
 
 <label>Description</label>
-<textarea name="description"></textarea>
+<textarea name="description" placeholder="Task description"></textarea>
 
 <label>Project</label>
-<select name="project">
+
+<select name="project" required>
+
+<option value="">Select Project</option>
 
 {% for project in projects %}
 
@@ -31,8 +34,12 @@
 
 </select>
 
+
 <label>Assign User</label>
+
 <select name="assignee">
+
+<option value="">Unassigned</option>
 
 {% for user in users %}
 
@@ -44,7 +51,9 @@
 
 </select>
 
-<button>Create Task</button>
+<button type="submit">
+Create Task
+</button>
 
 </form>
 

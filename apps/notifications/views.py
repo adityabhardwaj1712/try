@@ -1,5 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +16,7 @@ from apps.projects.models import Project
 
 
 # ==============================
-# API VIEWSET (DRF API)
+# API VIEWSET
 # ==============================
 
 class NotificationViewSet(viewsets.ModelViewSet):
@@ -24,13 +25,14 @@ class NotificationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
+
         return Notification.objects.select_related(
             "sender",
             "project",
             "project__organization"
         ).filter(
-            user=self.request.user
-        )
+            Q(user=self.request.user) | Q(sender=self.request.user)
+        ).order_by("-created_at")
 
     def perform_create(self, serializer):
 
@@ -57,9 +59,11 @@ class NotificationViewSet(viewsets.ModelViewSet):
 @login_required
 def notifications_page(request):
 
-    users = User.objects.all()
+    users = User.objects.exclude(id=request.user.id)
+
     projects = Project.objects.select_related("organization")
 
+    # CREATE NOTIFICATION
     if request.method == "POST":
 
         message = request.POST.get("message")
@@ -70,18 +74,34 @@ def notifications_page(request):
             message=message,
             user_id=user_id,
             sender=request.user,
-            project_id=project_id
+            project_id=project_id if project_id else None
         )
 
         return redirect("notifications_page")
 
+
+    # GET NOTIFICATIONS
     notifications = Notification.objects.select_related(
         "sender",
         "project",
         "project__organization"
     ).filter(
-        user=request.user
+        Q(user=request.user) | Q(sender=request.user)
     ).order_by("-created_at")
+
+
+    # ⭐ AUTO MARK NOTIFICATIONS AS READ
+    Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+
+    unread_count = Notification.objects.filter(
+        user=request.user,
+        is_read=False
+    ).count()
+
 
     return render(
         request,
@@ -89,6 +109,22 @@ def notifications_page(request):
         {
             "notifications": notifications,
             "users": users,
-            "projects": projects
+            "projects": projects,
+            "unread_count": unread_count
         }
     )
+
+
+# ==============================
+# MARK READ (NON API)
+# ==============================
+
+@login_required
+def mark_notification_read(request, pk):
+
+    notification = get_object_or_404(Notification, pk=pk)
+
+    notification.is_read = True
+    notification.save(update_fields=["is_read"])
+
+    return redirect("notifications_page")

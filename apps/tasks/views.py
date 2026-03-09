@@ -7,6 +7,9 @@ from apps.projects.models import Project
 from apps.users.models import User
 from apps.organizations.models import Membership
 
+# NEW IMPORT
+from apps.notifications.models import Notification
+
 
 # =============================
 # TASK BOARD
@@ -15,7 +18,6 @@ from apps.organizations.models import Membership
 @login_required
 def task_board(request):
 
-    # All tasks user can see
     tasks = Task.objects.filter(
         project__organization__memberships__user=request.user
     ).select_related(
@@ -23,31 +25,28 @@ def task_board(request):
         "assignee"
     ).distinct()
 
-    # Kanban columns
     todo_tasks = tasks.filter(status="TODO")
     progress_tasks = tasks.filter(status="IN_PROGRESS")
     done_tasks = tasks.filter(status="DONE")
 
-    # Projects user belongs to
     projects = Project.objects.filter(
         organization__memberships__user=request.user
     ).distinct()
 
-    # Organizations where user belongs
-    memberships = Membership.objects.filter(
-        user=request.user
-    )
+    memberships = Membership.objects.filter(user=request.user)
 
-    # Users in those organizations
+    # exclude logged in user
     users = User.objects.filter(
         memberships__organization__in=memberships.values_list(
             "organization", flat=True
         )
+    ).exclude(
+        id=request.user.id
     ).distinct()
 
     context = {
-        "tasks": tasks,                 # ⭐ Needed for table view
-        "todo_tasks": todo_tasks,       # Kanban TODO
+        "tasks": tasks,
+        "todo_tasks": todo_tasks,
         "progress_tasks": progress_tasks,
         "done_tasks": done_tasks,
         "projects": projects,
@@ -72,19 +71,34 @@ def create_task(request):
         organization__memberships__user=request.user
     ).select_related("organization")
 
-    memberships = Membership.objects.filter(
-        user=request.user
-    )
+    memberships = Membership.objects.filter(user=request.user)
 
     users = User.objects.filter(
         memberships__organization__in=memberships.values_list(
             "organization", flat=True
         )
+    ).exclude(
+        id=request.user.id
     ).distinct()
 
     if request.method == "POST":
 
+        title = request.POST.get("title")
+        description = request.POST.get("description")
         project_id = request.POST.get("project")
+        assignee_id = request.POST.get("assignee")
+
+        if not project_id:
+            return render(
+                request,
+                "dashboard/create_task.html",
+                {
+                    "projects": projects,
+                    "users": users,
+                    "error": "Project is required"
+                }
+            )
+
         project = get_object_or_404(Project, id=project_id)
 
         membership = Membership.objects.filter(
@@ -95,22 +109,33 @@ def create_task(request):
         if not membership:
             return HttpResponseForbidden("Not part of this organization")
 
-        # Viewer cannot create task
         if membership.role == "VIEWER":
-            return render(
-                request,
-                "dashboard/no_permission.html"
-            )
+            return render(request, "dashboard/no_permission.html")
 
-        Task.objects.create(
-            title=request.POST.get("title"),
-            description=request.POST.get("description"),
+        assignee = None
+
+        if assignee_id:
+            assignee = User.objects.filter(id=assignee_id).first()
+
+        # CREATE TASK
+        task = Task.objects.create(
+            title=title,
+            description=description,
             project=project,
             organization=project.organization,
-            assignee_id=request.POST.get("assignee"),
+            assignee=assignee,
             created_by=request.user,
             status="TODO"
         )
+
+        # NEW: CREATE NOTIFICATION WHEN TASK ASSIGNED
+        if assignee:
+            Notification.objects.create(
+                user=assignee,
+                sender=request.user,
+                project=project,
+                message=f"{request.user.email} assigned you a task: {task.title}"
+            )
 
         return redirect("task_board")
 
@@ -141,7 +166,6 @@ def update_task_status(request, task_id):
     if not membership:
         return HttpResponseForbidden("Not part of this organization")
 
-    # Any member can update status
     if request.method == "POST":
 
         status = request.POST.get("status")

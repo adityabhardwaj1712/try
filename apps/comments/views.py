@@ -4,6 +4,8 @@ from django.http import HttpResponseForbidden
 
 from apps.tasks.models import Task
 from apps.organizations.models import Membership
+from apps.notifications.models import Notification   # NEW IMPORT
+
 from .models import Comment
 
 
@@ -31,11 +33,24 @@ def comments_page(request):
 
         if content:
 
-            Comment.objects.create(
+            comment = Comment.objects.create(
                 content=content,
                 task=task,
                 user=request.user
             )
+
+            # ==============================
+            # CREATE NOTIFICATION
+            # ==============================
+
+            if task.assignee and task.assignee != request.user:
+
+                Notification.objects.create(
+                    user=task.assignee,
+                    sender=request.user,
+                    project=task.project,
+                    message=f"{request.user.email} commented on task: {task.title}"
+                )
 
             return redirect("/comments/")
 

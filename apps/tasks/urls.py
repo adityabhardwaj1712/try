@@ -1,8 +1,27 @@
 from django.urls import path
-from .views import task_board, create_task, update_task_status
+from . import views
 
 urlpatterns = [
-    path("", task_board, name="task_board"),
-    path("create/", create_task, name="create_task"),
-    path("update-status/<int:task_id>/", update_task_status, name="update_task_status"),
+
+    # Task board
+    path(
+        "",
+        views.task_board,
+        name="task_board"
+    ),
+
+    # Create task
+    path(
+        "create/",
+        views.create_task,
+        name="create_task"
+    ),
+
+    # Update status
+    path(
+        "update-status/<int:task_id>/",
+        views.update_task_status,
+        name="update_task_status"
+    ),
+
 ]
