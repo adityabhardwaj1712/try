@@ -7,7 +7,6 @@ from .views import (
     mark_notification_read
 )
 
-# DRF Router
 router = DefaultRouter()
 router.register(
     "api/notifications",
@@ -17,14 +16,12 @@ router.register(
 
 urlpatterns = [
 
-    # dashboard notifications page
     path(
         "",
         notifications_page,
         name="notifications_page"
     ),
 
-    # mark notification as read
     path(
         "read/<int:pk>/",
         mark_notification_read,
@@ -33,5 +30,4 @@ urlpatterns = [
 
 ]
 
-# include API routes
 urlpatterns += router.urls

@@ -3,18 +3,11 @@ from django.contrib.auth.decorators import login_required
 
 from .models import Organization, Membership
 
-
-# ===============================
-# ORGANIZATION LIST
-# ===============================
-
 @login_required
 def organization_list(request):
 
-    # CREATE ORGANIZATION FROM FORM
     if request.method == "POST":
 
-        # Only ADMIN or superuser can create
         if request.user.role != "ADMIN" and not request.user.is_superuser:
             return render(
                 request,
@@ -32,7 +25,6 @@ def organization_list(request):
                 owner=request.user
             )
 
-            # creator becomes ADMIN
             Membership.objects.create(
                 user=request.user,
                 organization=org,
@@ -54,16 +46,11 @@ def organization_list(request):
     )
 
 
-# ===============================
-# CREATE ORGANIZATION PAGE
-# ===============================
-
 @login_required
 def create_organization(request):
 
     if request.method == "POST":
 
-        # Only ADMIN or superuser can create
         if request.user.role != "ADMIN" and not request.user.is_superuser:
             return render(
                 request,
@@ -102,10 +89,6 @@ def create_organization(request):
     )
 
 
-# ===============================
-# ORGANIZATION DETAIL
-# ===============================
-
 @login_required
 def organization_detail(request, pk):
 
@@ -119,7 +102,6 @@ def organization_detail(request, pk):
         organization=organization
     ).first()
 
-    # User must belong to organization
     if not membership:
         return render(
             request,

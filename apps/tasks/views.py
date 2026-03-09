@@ -6,14 +6,7 @@ from .models import Task
 from apps.projects.models import Project
 from apps.users.models import User
 from apps.organizations.models import Membership
-
-# NEW IMPORT
 from apps.notifications.models import Notification
-
-
-# =============================
-# TASK BOARD
-# =============================
 
 @login_required
 def task_board(request):
@@ -35,7 +28,6 @@ def task_board(request):
 
     memberships = Membership.objects.filter(user=request.user)
 
-    # exclude logged in user
     users = User.objects.filter(
         memberships__organization__in=memberships.values_list(
             "organization", flat=True
@@ -59,10 +51,6 @@ def task_board(request):
         context
     )
 
-
-# =============================
-# CREATE TASK
-# =============================
 
 @login_required
 def create_task(request):
@@ -117,7 +105,6 @@ def create_task(request):
         if assignee_id:
             assignee = User.objects.filter(id=assignee_id).first()
 
-        # CREATE TASK
         task = Task.objects.create(
             title=title,
             description=description,
@@ -128,7 +115,6 @@ def create_task(request):
             status="TODO"
         )
 
-        # NEW: CREATE NOTIFICATION WHEN TASK ASSIGNED
         if assignee:
             Notification.objects.create(
                 user=assignee,
@@ -148,10 +134,6 @@ def create_task(request):
         }
     )
 
-
-# =============================
-# UPDATE TASK STATUS
-# =============================
 
 @login_required
 def update_task_status(request, task_id):

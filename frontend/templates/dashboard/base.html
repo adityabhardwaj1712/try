@@ -60,11 +60,24 @@ color:#cbd5f5;
 font-size:14px;
 transition:all 0.2s;
 border-left:3px solid transparent;
+position:relative;
 }
 
 .sidebar a:hover{
 background:#1e293b;
 color:white;
+}
+
+/* 🔔 Notification badge */
+
+.notif-badge{
+position:absolute;
+right:18px;
+background:#ef4444;
+color:white;
+font-size:11px;
+padding:2px 6px;
+border-radius:10px;
 }
 
 /* USER AREA */
@@ -233,13 +246,24 @@ background:#f9fafb;
 
 <nav>
 
-<a href="/">🏠 Dashboard</a>
-<a href="/organizations/">🏢 Organizations</a>
-<a href="/projects/">📁 Projects</a>
-<a href="/tasks/">🗂 Tasks</a>
-<a href="/comments/">💬 Comments</a>
-<a href="/notifications/">🔔 Notifications</a>
-<a href="/users/">👥 Users</a>
+<a href="/"> Dashboard</a>
+<a href="/organizations/"> Organizations</a>
+<a href="/projects/"> Projects</a>
+<a href="/tasks/"> Tasks</a>
+<a href="/comments/"> Comments</a>
+
+<a href="/notifications/" id="notif-link">
+ Notifications
+
+{% if unread_count and unread_count > 0 %}
+<span class="notif-badge">
+{{ unread_count }}
+</span>
+{% endif %}
+
+</a>
+
+<a href="/users/"> Users</a>
 
 </nav>
 
@@ -256,7 +280,6 @@ background:#f9fafb;
 </div>
 
 
-<!-- MAIN -->
 
 <div class="main">
 
@@ -283,5 +306,54 @@ background:#f9fafb;
 
 </div>
 
-</body>
-</html>
+
+
+<script>
+
+const protocol = window.location.protocol === "https:" ? "wss://" : "ws://";
+
+const socket = new WebSocket(
+    protocol + window.location.host + "/ws/notifications/"
+);
+
+socket.onopen = function(){
+    console.log("WebSocket connected");
+};
+
+socket.onmessage = function(event){
+
+    const data = JSON.parse(event.data);
+
+    const notifLink = document.querySelector('a[href="/notifications/"]');
+    let badge = document.querySelector(".notif-badge");
+
+    if(badge){
+
+        let count = parseInt(badge.innerText) || 0;
+        badge.innerText = count + 1;
+
+    }else{
+
+        badge = document.createElement("span");
+        badge.className = "notif-badge";
+        badge.innerText = "1";
+
+        notifLink.appendChild(badge);
+
+    }
+
+    badge.style.display = "none";
+    badge.offsetHeight; 
+    badge.style.display = "inline-block";
+
+};
+
+socket.onerror = function(error){
+    console.log("WebSocket error:", error);
+};
+
+socket.onclose = function(){
+    console.log("WebSocket closed");
+};
+
+</script>

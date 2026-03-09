@@ -8,16 +8,14 @@ from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.exceptions import PermissionDenied
 
+from channels.layers import get_channel_layer
+from asgiref.sync import async_to_sync
+
 from .models import Notification
 from .serializers import NotificationSerializer
 
 from apps.users.models import User
 from apps.projects.models import Project
-
-
-# ==============================
-# API VIEWSET
-# ==============================
 
 class NotificationViewSet(viewsets.ModelViewSet):
 
@@ -39,7 +37,17 @@ class NotificationViewSet(viewsets.ModelViewSet):
         if self.request.user.role not in ["ADMIN", "MANAGER"]:
             raise PermissionDenied("You cannot send notifications")
 
-        serializer.save(sender=self.request.user)
+        notification = serializer.save(sender=self.request.user)
+
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            f"user_{notification.user.id}",
+            {
+                "type": "send_notification",
+                "message": notification.message
+            }
+        )
 
     @action(detail=True, methods=["post"])
     def mark_read(self, request, pk=None):
@@ -51,11 +59,6 @@ class NotificationViewSet(viewsets.ModelViewSet):
 
         return Response({"status": "marked as read"})
 
-
-# ==============================
-# DASHBOARD PAGE VIEW
-# ==============================
-
 @login_required
 def notifications_page(request):
 
@@ -63,24 +66,32 @@ def notifications_page(request):
 
     projects = Project.objects.select_related("organization")
 
-    # CREATE NOTIFICATION
     if request.method == "POST":
 
         message = request.POST.get("message")
         user_id = request.POST.get("user")
         project_id = request.POST.get("project")
 
-        Notification.objects.create(
+        notification = Notification.objects.create(
             message=message,
             user_id=user_id,
             sender=request.user,
-            project_id=project_id if project_id else None
+            project_id=project_id if project_id else None,
+            notification_type="GENERAL"
+        )
+
+        channel_layer = get_channel_layer()
+
+        async_to_sync(channel_layer.group_send)(
+            f"user_{user_id}",
+            {
+                "type": "send_notification",
+                "message": message
+            }
         )
 
         return redirect("notifications_page")
 
-
-    # GET NOTIFICATIONS
     notifications = Notification.objects.select_related(
         "sender",
         "project",
@@ -89,19 +100,15 @@ def notifications_page(request):
         Q(user=request.user) | Q(sender=request.user)
     ).order_by("-created_at")
 
-
-    # ⭐ AUTO MARK NOTIFICATIONS AS READ
     Notification.objects.filter(
         user=request.user,
         is_read=False
     ).update(is_read=True)
 
-
     unread_count = Notification.objects.filter(
         user=request.user,
         is_read=False
     ).count()
-
 
     return render(
         request,
@@ -113,11 +120,6 @@ def notifications_page(request):
             "unread_count": unread_count
         }
     )
-
-
-# ==============================
-# MARK READ (NON API)
-# ==============================
 
 @login_required
 def mark_notification_read(request, pk):

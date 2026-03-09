@@ -4,7 +4,6 @@ from datetime import timedelta
 
 from .models import Notification
 
-
 @shared_task
 def daily_cleanup():
     """

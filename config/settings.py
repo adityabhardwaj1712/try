@@ -13,10 +13,6 @@ DEBUG = os.getenv("DEBUG", "True") == "True"
 
 ALLOWED_HOSTS = ["*"]
 
-# ======================
-# APPS
-# ======================
-
 INSTALLED_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,10 +37,6 @@ INSTALLED_APPS = [
     "apps.notifications",
 ]
 
-# ======================
-# MIDDLEWARE
-# ======================
-
 MIDDLEWARE = [
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
@@ -58,10 +50,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
-# ======================
-# TEMPLATES
-# ======================
-
 TEMPLATES = [
 {
     "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -73,6 +61,7 @@ TEMPLATES = [
             "django.template.context_processors.request",
             "django.contrib.auth.context_processors.auth",
             "django.contrib.messages.context_processors.messages",
+            "apps.notifications.context_processors.unread_notifications",
         ],
     },
 },
@@ -80,10 +69,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 ASGI_APPLICATION = "config.asgi.application"
-
-# ======================
-# DATABASE
-# ======================
 
 DATABASES = {
 "default": {
@@ -98,10 +83,6 @@ DATABASES = {
 
 AUTH_USER_MODEL = "users.User"
 
-# ======================
-# REST FRAMEWORK
-# ======================
-
 REST_FRAMEWORK = {
 "DEFAULT_AUTHENTICATION_CLASSES": [
 "rest_framework_simplejwt.authentication.JWTAuthentication",
@@ -114,21 +95,11 @@ REST_FRAMEWORK = {
 ],
 }
 
-# ======================
-# JWT SETTINGS
-# ======================
-
-from datetime import timedelta
-
 SIMPLE_JWT = {
 "ACCESS_TOKEN_LIFETIME": timedelta(hours=1),
 "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 "AUTH_HEADER_TYPES": ("Bearer",),
 }
-
-# ======================
-# REDIS CACHE
-# ======================
 
 CACHES = {
 "default": {
@@ -140,10 +111,6 @@ CACHES = {
 }
 }
 
-# ======================
-# CHANNELS
-# ======================
-
 CHANNEL_LAYERS = {
 "default": {
 "BACKEND": "channels_redis.core.RedisChannelLayer",
@@ -153,9 +120,6 @@ CHANNEL_LAYERS = {
 },
 }
 
-# ======================
-# STATIC FILES
-# ======================
 
 STATIC_URL = "/static/"
 

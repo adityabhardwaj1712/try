@@ -8,7 +8,6 @@ class OrganizationMiddleware:
 
     def __call__(self, request):
 
-        # default values
         request.organization = None
         request.membership = None
         request.role = None

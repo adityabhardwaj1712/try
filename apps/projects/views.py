@@ -4,15 +4,9 @@ from django.contrib.auth.decorators import login_required
 from apps.organizations.models import Organization, Membership
 from .models import Project
 
-
-# ==============================
-# PROJECT LIST
-# ==============================
-
 @login_required
 def project_list(request):
 
-    # projects only from user's organizations
     projects = Project.objects.filter(
         organization__memberships__user=request.user
     ).select_related(
@@ -20,7 +14,6 @@ def project_list(request):
         "owner"
     ).distinct().order_by("-id")
 
-    # organizations user belongs to
     organizations = Organization.objects.filter(
         memberships__user=request.user
     ).order_by("name")
@@ -34,10 +27,6 @@ def project_list(request):
         }
     )
 
-
-# ==============================
-# CREATE PROJECT
-# ==============================
 
 @login_required
 def create_project(request):
@@ -82,14 +71,12 @@ def create_project(request):
             organization=organization
         ).first()
 
-        # user must belong to organization
         if not membership:
             return render(
                 request,
                 "dashboard/no_permission.html"
             )
 
-        # VIEWER cannot create project
         if membership.role == "VIEWER":
             return render(
                 request,
@@ -113,10 +100,6 @@ def create_project(request):
         }
     )
 
-
-# ==============================
-# PROJECT DETAIL
-# ==============================
 
 @login_required
 def project_detail(request, pk):

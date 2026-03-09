@@ -1,6 +1,5 @@
 from .models import Notification
 
-
 class NotificationService:
 
     @staticmethod

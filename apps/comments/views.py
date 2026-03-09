@@ -4,10 +4,8 @@ from django.http import HttpResponseForbidden
 
 from apps.tasks.models import Task
 from apps.organizations.models import Membership
-from apps.notifications.models import Notification   # NEW IMPORT
-
+from apps.notifications.models import Notification   
 from .models import Comment
-
 
 @login_required
 def comments_page(request):
@@ -38,10 +36,6 @@ def comments_page(request):
                 task=task,
                 user=request.user
             )
-
-            # ==============================
-            # CREATE NOTIFICATION
-            # ==============================
 
             if task.assignee and task.assignee != request.user:
 

@@ -9,10 +9,6 @@ from apps.organizations.models import Membership
 User = get_user_model()
 
 
-# ============================
-# LOGIN
-# ============================
-
 def login_view(request):
 
     if request.method == "POST":
@@ -39,20 +35,12 @@ def login_view(request):
     return render(request, "login.html")
 
 
-# ============================
-# LOGOUT
-# ============================
-
 def logout_view(request):
 
     logout(request)
 
     return redirect("/login/")
 
-
-# ============================
-# USERS PAGE
-# ============================
 
 @login_required
 def users_page(request):
@@ -68,10 +56,6 @@ def users_page(request):
             role = form.cleaned_data["role"]
             organization = form.cleaned_data["organization"]
 
-            # ============================
-            # PERMISSION RULES
-            # ============================
-
             if request.user.role == "VIEWER":
                 return render(
                     request,
@@ -84,19 +68,11 @@ def users_page(request):
                     "dashboard/no_permission.html"
                 )
 
-            # ============================
-            # CREATE USER
-            # ============================
-
             user = form.save(commit=False)
 
             user.set_password(form.cleaned_data["password"])
 
             user.save()
-
-            # ============================
-            # CREATE MEMBERSHIP
-            # ============================
 
             Membership.objects.create(
                 user=user,
